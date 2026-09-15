@@ -1,0 +1,23 @@
+.anchor/
+.DS_Store
+target/
+node_modules/
+dist/
+build/
+test-ledger/
+
+# secrets — never committed, ever
+.env
+.env.local
+.env.*.local
+*.env
+*.keypair.json
+*-keypair.json
+*keypair.json
+**/*keypair.json
+**/id.json
+*id.json
+
+# app build output
+app/.next/
+app/out/
