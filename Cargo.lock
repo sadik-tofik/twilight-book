@@ -164,7 +164,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0bb0e0911ad4a70cab880cdd6287fe1e880a1a9d8e4e6defa8e9044b9796a6c"
 dependencies = [
  "anchor-syn",
- "borsh-derive-internal 0.9.3",
+ "borsh-derive-internal 0.10.4",
  "proc-macro2",
  "quote",
  "syn 1.0.109",
@@ -200,7 +200,7 @@ dependencies = [
  "arrayref",
  "base64 0.21.7",
  "bincode",
- "borsh 0.9.3",
+ "borsh 0.10.4",
  "bytemuck",
  "getrandom 0.2.17",
  "solana-program",
@@ -517,7 +517,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "115e54d64eb62cdebad391c19efc9dce4981c690c85a33a12199d99bb9546fee"
 dependencies = [
  "borsh-derive 0.10.4",
- "hashbrown 0.11.2",
+ "hashbrown 0.13.2",
 ]
 
 [[package]]
@@ -1563,9 +1563,9 @@ dependencies = [
 
 [[package]]
 name = "pyth-sdk-solana"
-version = "0.10.6"
+version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15382cba7ad64585bd46fbd527bd79463b7a1110047834fe667ca94dc9cda330"
+checksum = "026fe970a2f1e4401739cead6b0106cd9a4d1129545a9d2ea003a9ca3edba303"
 dependencies = [
  "borsh 0.10.4",
  "borsh-derive 0.10.4",

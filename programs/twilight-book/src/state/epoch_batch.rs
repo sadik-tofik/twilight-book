@@ -26,10 +26,10 @@ pub struct EpochBatchState {
 }
 
 impl EpochBatchState {
-    // 8 (disc) + 32 (market) + 8*6 (u64 fields) + 1 (status) + 2 (order_count)
+    // 8 (disc) + 32 (market) + 8*7 (u64 fields) + 1 (status) + 2 (order_count)
     // + 32 * BatchOrder::SIZE
     pub const SIZE: usize =
-        8 + 32 + 8 * 6 + 1 + 2 + MAX_ORDERS_PER_BATCH * BatchOrder::SIZE; // = 1,947 bytes, matches PDR §2
+        8 + 32 + 8 * 7 + 1 + 2 + MAX_ORDERS_PER_BATCH * BatchOrder::SIZE; // = 1,955 bytes
 }
 
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, Debug)]
