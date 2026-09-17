@@ -9,14 +9,14 @@ pub struct SettleBatchAuction<'info> {
     pub keeper: Signer<'info>,
 
     #[account(mut)]
-    pub market: Account<'info, Market>,
+    pub market: Box<Account<'info, Market>>,
 
     #[account(
         mut,
         seeds = [BATCH_SEED, market.key().as_ref(), market.current_epoch.to_le_bytes().as_ref()],
         bump
     )]
-    pub epoch_batch: Account<'info, EpochBatchState>,
+    pub epoch_batch: Box<Account<'info, EpochBatchState>>,
 
     /// CHECK: read-only reference for tie-break midpoint biasing (TDD §2).
     #[account(address = market.pyth_feed)]

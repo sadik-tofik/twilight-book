@@ -9,31 +9,31 @@ pub struct PlaceBatchOrder<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
 
-    pub market: Account<'info, Market>,
+    pub market: Box<Account<'info, Market>>,
 
     #[account(
         mut,
         seeds = [BATCH_SEED, market.key().as_ref(), market.current_epoch.to_le_bytes().as_ref()],
         bump
     )]
-    pub epoch_batch: Account<'info, EpochBatchState>,
+    pub epoch_batch: Box<Account<'info, EpochBatchState>>,
 
     /// CHECK: must equal market.pyth_feed; read for confidence-band validation.
     #[account(address = market.pyth_feed)]
     pub pyth_feed: UncheckedAccount<'info>,
 
     #[account(mut, address = market.vault_base)]
-    pub vault_base: InterfaceAccount<'info, TokenAccount>,
+    pub vault_base: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(mut, address = market.vault_quote)]
-    pub vault_quote: InterfaceAccount<'info, TokenAccount>,
+    pub vault_quote: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(mut)]
-    pub user_base_ata: InterfaceAccount<'info, TokenAccount>,
+    pub user_base_ata: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(mut)]
-    pub user_quote_ata: InterfaceAccount<'info, TokenAccount>,
+    pub user_quote_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
-    pub base_mint: InterfaceAccount<'info, Mint>,
-    pub quote_mint: InterfaceAccount<'info, Mint>,
+    pub base_mint: Box<InterfaceAccount<'info, Mint>>,
+    pub quote_mint: Box<InterfaceAccount<'info, Mint>>,
     pub token_program: Interface<'info, TokenInterface>,
 }
 
@@ -63,24 +63,24 @@ pub struct CancelBatchOrder<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
 
-    pub market: Account<'info, Market>,
+    pub market: Box<Account<'info, Market>>,
 
     #[account(
         mut,
         seeds = [BATCH_SEED, market.key().as_ref(), market.current_epoch.to_le_bytes().as_ref()],
         bump
     )]
-    pub epoch_batch: Account<'info, EpochBatchState>,
+    pub epoch_batch: Box<Account<'info, EpochBatchState>>,
 
     #[account(mut, address = market.vault_base)]
-    pub vault_base: InterfaceAccount<'info, TokenAccount>,
+    pub vault_base: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(mut, address = market.vault_quote)]
-    pub vault_quote: InterfaceAccount<'info, TokenAccount>,
+    pub vault_quote: Box<InterfaceAccount<'info, TokenAccount>>,
 
     #[account(mut)]
-    pub user_base_ata: InterfaceAccount<'info, TokenAccount>,
+    pub user_base_ata: Box<InterfaceAccount<'info, TokenAccount>>,
     #[account(mut)]
-    pub user_quote_ata: InterfaceAccount<'info, TokenAccount>,
+    pub user_quote_ata: Box<InterfaceAccount<'info, TokenAccount>>,
 
     pub token_program: Interface<'info, TokenInterface>,
 }

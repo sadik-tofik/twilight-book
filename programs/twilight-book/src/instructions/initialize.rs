@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token_interface::{Mint, TokenAccount, TokenInterface};
+use anchor_spl::token_interface::{Mint, TokenInterface};
 
 use crate::state::*;
 
@@ -16,30 +16,26 @@ pub struct InitializeMarket<'info> {
         seeds = [MARKET_SEED, base_mint.key().as_ref(), quote_mint.key().as_ref()],
         bump
     )]
-    pub market: Account<'info, Market>,
+    pub market: Box<Account<'info, Market>>,
 
-    pub base_mint: InterfaceAccount<'info, Mint>,
-    pub quote_mint: InterfaceAccount<'info, Mint>,
+    pub base_mint: Box<InterfaceAccount<'info, Mint>>,
+    pub quote_mint: Box<InterfaceAccount<'info, Mint>>,
 
+    /// CHECK: initialized via CPI in handler (Sprint 1)
     #[account(
-        init,
-        payer = authority,
+        mut,
         seeds = [VAULT_BASE_SEED, market.key().as_ref()],
         bump,
-        token::mint = base_mint,
-        token::authority = market,
     )]
-    pub vault_base: InterfaceAccount<'info, TokenAccount>,
+    pub vault_base: UncheckedAccount<'info>,
 
+    /// CHECK: initialized via CPI in handler (Sprint 1)
     #[account(
-        init,
-        payer = authority,
+        mut,
         seeds = [VAULT_QUOTE_SEED, market.key().as_ref()],
         bump,
-        token::mint = quote_mint,
-        token::authority = market,
     )]
-    pub vault_quote: InterfaceAccount<'info, TokenAccount>,
+    pub vault_quote: UncheckedAccount<'info>,
 
     /// CHECK: validated in `handler` (Sprint 2) via pyth-sdk-solana's
     /// zero-copy PriceFeed deserialization, not by Anchor's account macro.
