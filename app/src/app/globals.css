@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-base: #0B0D10;
+  --color-bg-surface: #131619;
+  --color-bg-surface-raised: #1B1F24;
+  --color-border-subtle: #242A30;
+  --color-text-primary: #EDEFF2;
+  --color-text-muted: #8A919C;
+  --color-accent-continuous: #3ECF8E;
+  --color-accent-twilight: #B98CE8;
+  --color-accent-danger: #E5544D;
+  --color-accent-neutral: #5B8DEF;
+
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+:root {
+  --bg-base: #0B0D10;
+  --bg-surface: #131619;
+  --bg-surface-raised: #1B1F24;
+  --border-subtle: #242A30;
+  --text-primary: #EDEFF2;
+  --text-muted: #8A919C;
+  --accent-continuous: #3ECF8E;
+  --accent-twilight: #B98CE8;
+  --accent-danger: #E5544D;
+  --accent-neutral: #5B8DEF;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0B0D10;
+  color: #EDEFF2;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Monospace numbers tabular display */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom scrollbar for trading terminal and code blocks */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B0D10;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #242A30;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #343C45;
+}
+
+/* Animations per motion budget */
+.animate-crossfade {
+  transition: all 200ms ease-out;
+}
+
+.num-transition {
+  transition: all 150ms ease-out;
+}
