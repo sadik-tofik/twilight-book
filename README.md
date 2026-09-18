@@ -10,7 +10,7 @@ this repo).
       contexts with `unimplemented!()`/`todo!()` bodies, test stubs
 - [x] **Sprint 1** — `initialize_market` (manual vault-creation CPIs, Market PDA authority, Bankrun tests)
 - [x] **Sprint 2** — `evaluate_market_mode` (Pyth circuit evaluator, Bankrun tests)
-- [ ] **Sprint 3** — `place_batch_order` / `cancel_batch_order`
+- [x] **Sprint 3** — `place_batch_order` / `cancel_batch_order` (Pyth confidence band, escrow CPIs, slot freeze, Bankrun tests)
 - [ ] **Sprint 4** — `math::clearing::solve_uniform_price` + `settle_batch_auction`
 - [ ] **Sprint 5** — `claim_order_proceeds` + full IVM (15 assertions)
 - [ ] **Sprint 6** — frontend cockpit (separate design agent)
