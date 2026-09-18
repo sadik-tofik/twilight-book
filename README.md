@@ -13,7 +13,7 @@ this repo).
 - [x] **Sprint 3** — `place_batch_order` / `cancel_batch_order` (Pyth confidence band, escrow CPIs, slot freeze, Bankrun tests)
 - [x] **Sprint 4** — `math::clearing::solve_uniform_price` + `settle_batch_auction` (uniform clearing engine, tie-break, pro-rata fills, epoch rollover, Bankrun tests)
 - [x] **Sprint 5** — `claim_order_proceeds` + zero-leakage vault invariant (Bankrun tests)
-- [ ] **Sprint 6** — frontend cockpit (separate design agent)
+- [x] **Sprint 6** — frontend trading cockpit and developer documentation site
 - [ ] **Sprint 7** — devnet deploy, security audit, `EVIDENCE.md`
 
 ## Toolchain & IDL Patches (`patches/`)
