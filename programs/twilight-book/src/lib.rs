@@ -51,4 +51,17 @@ pub mod twilight_book {
     pub fn claim_order_proceeds(ctx: Context<ClaimOrderProceeds>, order_index: u16) -> Result<()> {
         instructions::claim::handler(ctx, order_index)
     }
+
+    // ---- Demo/devnet only — see mock_oracle.rs module doc ----
+    pub fn set_mock_oracle(
+        ctx: Context<SetMockOracle>,
+        price: i64,
+        conf: u64,
+        expo: i32,
+        status: u8,
+        publish_time: i64,
+    ) -> Result<()> {
+        instructions::mock_oracle::handler(ctx, price, conf, expo, status, publish_time)
+    }
 }
+
