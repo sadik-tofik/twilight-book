@@ -12,7 +12,7 @@ this repo).
 - [x] **Sprint 2** — `evaluate_market_mode` (Pyth circuit evaluator, Bankrun tests)
 - [x] **Sprint 3** — `place_batch_order` / `cancel_batch_order` (Pyth confidence band, escrow CPIs, slot freeze, Bankrun tests)
 - [x] **Sprint 4** — `math::clearing::solve_uniform_price` + `settle_batch_auction` (uniform clearing engine, tie-break, pro-rata fills, epoch rollover, Bankrun tests)
-- [ ] **Sprint 5** — `claim_order_proceeds` + full IVM (15 assertions)
+- [x] **Sprint 5** — `claim_order_proceeds` + zero-leakage vault invariant (Bankrun tests)
 - [ ] **Sprint 6** — frontend cockpit (separate design agent)
 - [ ] **Sprint 7** — devnet deploy, security audit, `EVIDENCE.md`
 

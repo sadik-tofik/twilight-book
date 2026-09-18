@@ -41,6 +41,10 @@ pub enum TwilightError {
     #[msg("Order does not belong to the calling user")]
     OrderOwnerMismatch,
 
+    #[msg("Epoch batch must be Settled or Voided before proceeds can be claimed")]
+    BatchNotFinalized,
+
     #[msg("Arithmetic overflow or underflow in a checked operation")]
     MathOverflow,
 }
+
