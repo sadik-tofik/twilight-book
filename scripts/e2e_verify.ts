@@ -11,9 +11,10 @@ import {
 import {
   TOKEN_PROGRAM_ID,
   createMint,
-  createAccount,
-  mintTo,
   getAccount,
+  getAssociatedTokenAddressSync,
+  createAssociatedTokenAccountIdempotentInstruction,
+  createMintToInstruction,
 } from "@solana/spl-token";
 import * as fs from "fs";
 import * as path from "path";
@@ -24,6 +25,8 @@ if (!fs.existsSync(idlPath)) {
   throw new Error(`IDL file not found at ${idlPath}. Run anchor build first.`);
 }
 const idl = JSON.parse(fs.readFileSync(idlPath, "utf-8"));
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 interface EvidenceEntry {
   stepNumber: number;
@@ -86,6 +89,31 @@ async function airdropIfLow(connection: Connection, pubkey: PublicKey, minSol: n
   }
 }
 
+async function fundPartyIfLow(connection: Connection, payer: Keypair, recipient: PublicKey, targetSol: number = 0.15) {
+  const balance = await connection.getBalance(recipient);
+  if (balance < targetSol * LAMPORTS_PER_SOL) {
+    console.log(`Funding party ${recipient.toBase58()} with ${targetSol} SOL from payer...`);
+    const tx = new anchor.web3.Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: payer.publicKey,
+        toPubkey: recipient,
+        lamports: Math.floor(targetSol * LAMPORTS_PER_SOL),
+      })
+    );
+    const latestBlockhash = await connection.getLatestBlockhash("confirmed");
+    tx.recentBlockhash = latestBlockhash.blockhash;
+    tx.feePayer = payer.publicKey;
+    tx.sign(payer);
+    const sig = await connection.sendRawTransaction(tx.serialize());
+    await connection.confirmTransaction({
+      signature: sig,
+      blockhash: latestBlockhash.blockhash,
+      lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+    }, "confirmed");
+    console.log(`Funded party: ${sig}`);
+  }
+}
+
 async function loadOrGeneratePayer(keypairPath?: string): Promise<Keypair> {
   if (keypairPath && fs.existsSync(keypairPath)) {
     const raw = JSON.parse(fs.readFileSync(keypairPath, "utf-8"));
@@ -122,45 +150,83 @@ async function main() {
   const seller1 = Keypair.generate();
   const seller2 = Keypair.generate();
 
-  console.log("\n--- Funding Test Party Wallets ---");
-  for (const [name, kp] of [
-    ["Buyer 1", buyer1],
-    ["Buyer 2", buyer2],
-    ["Seller 1", seller1],
-    ["Seller 2", seller2],
-  ] as const) {
-    console.log(`Party: ${name} -> ${kp.publicKey.toBase58()}`);
-    await airdropIfLow(connection, kp.publicKey, 2);
-  }
+  console.log("\n--- Funding Test Party Wallets in a Single Bundle ---");
+  const fundTx = new anchor.web3.Transaction().add(
+    SystemProgram.transfer({
+      fromPubkey: payer.publicKey,
+      toPubkey: buyer1.publicKey,
+      lamports: Math.floor(0.15 * LAMPORTS_PER_SOL),
+    }),
+    SystemProgram.transfer({
+      fromPubkey: payer.publicKey,
+      toPubkey: buyer2.publicKey,
+      lamports: Math.floor(0.15 * LAMPORTS_PER_SOL),
+    }),
+    SystemProgram.transfer({
+      fromPubkey: payer.publicKey,
+      toPubkey: seller1.publicKey,
+      lamports: Math.floor(0.15 * LAMPORTS_PER_SOL),
+    }),
+    SystemProgram.transfer({
+      fromPubkey: payer.publicKey,
+      toPubkey: seller2.publicKey,
+      lamports: Math.floor(0.15 * LAMPORTS_PER_SOL),
+    }),
+  );
+  const fundSig = await anchor.web3.sendAndConfirmTransaction(connection, fundTx, [payer], { commitment: "confirmed" });
+  console.log(`Funded all 4 test parties with 0.15 SOL each in tx: ${fundSig}`);
+  await sleep(1000);
 
   // Step 0: Create SPL Token Mints (TTSLA 6-decimals, USDC 6-decimals)
   console.log("\n--- Initializing SPL Mints & Token Accounts ---");
   const baseMint = await createMint(connection, payer, payer.publicKey, null, 6);
+  await sleep(600);
   const quoteMint = await createMint(connection, payer, payer.publicKey, null, 6);
+  await sleep(600);
   console.log(`Base Mint  (TTSLA, 6 decimals): ${baseMint.toBase58()}`);
   console.log(`Quote Mint (USDC, 6 decimals):  ${quoteMint.toBase58()}`);
 
-  // Create ATAs
-  const buyer1QuoteAta = await createAccount(connection, payer, quoteMint, buyer1.publicKey);
-  const buyer2QuoteAta = await createAccount(connection, payer, quoteMint, buyer2.publicKey);
-  const seller1BaseAta = await createAccount(connection, payer, baseMint, seller1.publicKey);
-  const seller2BaseAta = await createAccount(connection, payer, baseMint, seller2.publicKey);
+  // Deterministic Associated Token Accounts
+  const buyer1QuoteAta = getAssociatedTokenAddressSync(quoteMint, buyer1.publicKey);
+  const buyer2QuoteAta = getAssociatedTokenAddressSync(quoteMint, buyer2.publicKey);
+  const seller1BaseAta = getAssociatedTokenAddressSync(baseMint, seller1.publicKey);
+  const seller2BaseAta = getAssociatedTokenAddressSync(baseMint, seller2.publicKey);
+  const buyer1BaseAta = getAssociatedTokenAddressSync(baseMint, buyer1.publicKey);
+  const buyer2BaseAta = getAssociatedTokenAddressSync(baseMint, buyer2.publicKey);
+  const seller1QuoteAta = getAssociatedTokenAddressSync(quoteMint, seller1.publicKey);
+  const seller2QuoteAta = getAssociatedTokenAddressSync(quoteMint, seller2.publicKey);
 
-  // Also ATAs for opposite sides so they can receive proceeds/shares on claim
-  const buyer1BaseAta = await createAccount(connection, payer, baseMint, buyer1.publicKey);
-  const buyer2BaseAta = await createAccount(connection, payer, baseMint, buyer2.publicKey);
-  const seller1QuoteAta = await createAccount(connection, payer, quoteMint, seller1.publicKey);
-  const seller2QuoteAta = await createAccount(connection, payer, quoteMint, seller2.publicKey);
+  // Bundle ATA creations into a single atomic transaction
+  console.log("Creating 8 Associated Token Accounts in a single bundled transaction...");
+  const ataTx = new anchor.web3.Transaction().add(
+    createAssociatedTokenAccountIdempotentInstruction(payer.publicKey, buyer1QuoteAta, buyer1.publicKey, quoteMint),
+    createAssociatedTokenAccountIdempotentInstruction(payer.publicKey, buyer2QuoteAta, buyer2.publicKey, quoteMint),
+    createAssociatedTokenAccountIdempotentInstruction(payer.publicKey, seller1BaseAta, seller1.publicKey, baseMint),
+    createAssociatedTokenAccountIdempotentInstruction(payer.publicKey, seller2BaseAta, seller2.publicKey, baseMint),
+    createAssociatedTokenAccountIdempotentInstruction(payer.publicKey, buyer1BaseAta, buyer1.publicKey, baseMint),
+    createAssociatedTokenAccountIdempotentInstruction(payer.publicKey, buyer2BaseAta, buyer2.publicKey, baseMint),
+    createAssociatedTokenAccountIdempotentInstruction(payer.publicKey, seller1QuoteAta, seller1.publicKey, quoteMint),
+    createAssociatedTokenAccountIdempotentInstruction(payer.publicKey, seller2QuoteAta, seller2.publicKey, quoteMint),
+  );
+  const ataSig = await anchor.web3.sendAndConfirmTransaction(connection, ataTx, [payer], { commitment: "confirmed" });
+  console.log(`Created 8 ATAs in tx: ${ataSig}`);
+  await sleep(1000);
 
-  // Mint Initial Balances:
+  // Mint Initial Balances in a single bundled transaction:
   // Buyer 1: $3,000.00 USDC (3,000,000,000)
   // Buyer 2: $2,000.00 USDC (2,000,000,000)
   // Seller 1: 20.00 TTSLA (20,000,000)
   // Seller 2: 20.00 TTSLA (20,000,000)
-  await mintTo(connection, payer, quoteMint, buyer1QuoteAta, payer, 3_000_000_000);
-  await mintTo(connection, payer, quoteMint, buyer2QuoteAta, payer, 2_000_000_000);
-  await mintTo(connection, payer, baseMint, seller1BaseAta, payer, 20_000_000);
-  await mintTo(connection, payer, baseMint, seller2BaseAta, payer, 20_000_000);
+  console.log("Minting initial balances in a single bundled transaction...");
+  const mintTx = new anchor.web3.Transaction().add(
+    createMintToInstruction(quoteMint, buyer1QuoteAta, payer.publicKey, 3_000_000_000),
+    createMintToInstruction(quoteMint, buyer2QuoteAta, payer.publicKey, 2_000_000_000),
+    createMintToInstruction(baseMint, seller1BaseAta, payer.publicKey, 20_000_000),
+    createMintToInstruction(baseMint, seller2BaseAta, payer.publicKey, 20_000_000),
+  );
+  const mintSig = await anchor.web3.sendAndConfirmTransaction(connection, mintTx, [payer], { commitment: "confirmed" });
+  console.log(`Minted tokens to all 4 parties in tx: ${mintSig}`);
+  await sleep(1500);
 
   // PDAs
   const [marketPda] = PublicKey.findProgramAddressSync(
@@ -187,8 +253,8 @@ async function main() {
   // =========================================================================
   // STEP 1: initialize_market
   // =========================================================================
-  const epochDurationSlots = new BN(20); // ~8 seconds for fast, reliable local & devnet execution
-  const maxConfBps = new BN(200);        // 2.00%
+  const epochDurationSlots = new BN(120); // ~48 seconds on devnet: allows 4 order txs to land safely before 5-slot anti-sniping freeze
+  const maxConfBps = new BN(200);         // 2.00%
   const confFilterMult = new BN(2);
 
   const initMarketTx = await program.methods
@@ -206,6 +272,7 @@ async function main() {
       rent: SYSVAR_RENT_PUBKEY,
     })
     .rpc();
+  await sleep(1500);
 
   const marketAccountAfterInit = await program.account.market.fetch(marketPda);
   logStep({
@@ -221,7 +288,7 @@ async function main() {
     },
     args: {
       max_conf_bps: 200,
-      epoch_duration_slots: 20,
+      epoch_duration_slots: epochDurationSlots.toNumber(),
       conf_filter_mult: 2,
     },
     assertions: [
@@ -239,9 +306,9 @@ async function main() {
       },
       {
         check: "Epoch duration slots initialized",
-        expected: 20,
+        expected: epochDurationSlots.toNumber(),
         actual: marketAccountAfterInit.epochDurationSlots.toNumber(),
-        pass: marketAccountAfterInit.epochDurationSlots.toNumber() === 20,
+        pass: marketAccountAfterInit.epochDurationSlots.toNumber() === epochDurationSlots.toNumber(),
       },
     ],
     status: "PASSED",
@@ -267,6 +334,7 @@ async function main() {
       systemProgram: SystemProgram.programId,
     })
     .rpc();
+  await sleep(1500);
 
   const oracleAcct = await connection.getAccountInfo(mockOraclePda);
   const magic = oracleAcct?.data.readUInt32LE(0);
@@ -324,6 +392,7 @@ async function main() {
       systemProgram: SystemProgram.programId,
     })
     .rpc();
+  await sleep(1500);
 
   const marketAccountAfterEval = await program.account.market.fetch(marketPda);
   const batch0AfterEval = await program.account.epochBatchState.fetch(epochBatch0Pda);
@@ -386,6 +455,7 @@ async function main() {
     })
     .signers([buyer1])
     .rpc();
+  await sleep(1200);
 
   // Order 1: Buyer 2
   const b2Tx = await program.methods
@@ -405,6 +475,7 @@ async function main() {
     })
     .signers([buyer2])
     .rpc();
+  await sleep(1200);
 
   // Order 2: Seller 1
   const s1Tx = await program.methods
@@ -424,6 +495,7 @@ async function main() {
     })
     .signers([seller1])
     .rpc();
+  await sleep(1200);
 
   // Order 3: Seller 2
   const s2Tx = await program.methods
@@ -443,6 +515,7 @@ async function main() {
     })
     .signers([seller2])
     .rpc();
+  await sleep(1500);
 
   const vaultBaseBalStep4 = (await getAccount(connection, vaultBase)).amount;
   const vaultQuoteBalStep4 = (await getAccount(connection, vaultQuote)).amount;
@@ -511,7 +584,7 @@ async function main() {
       break;
     }
     process.stdout.write(`Current slot: ${curSlot} / ${targetSlot}...\r`);
-    await new Promise((r) => setTimeout(r, 400));
+    await sleep(1200);
   }
 
   const [epochBatch1Pda] = PublicKey.findProgramAddressSync(
@@ -530,7 +603,7 @@ async function main() {
       systemProgram: SystemProgram.programId,
     })
     .rpc();
-
+  await sleep(1500);
 
   const batch0Settled = await program.account.epochBatchState.fetch(epochBatch0Pda);
   const marketAfterSettle = await program.account.market.fetch(marketPda);
@@ -619,6 +692,7 @@ async function main() {
     })
     .signers([buyer1])
     .rpc();
+  await sleep(1200);
   const b1PostQuote = (await getAccount(connection, buyer1QuoteAta)).amount;
   const b1PostBase = (await getAccount(connection, buyer1BaseAta)).amount;
 
@@ -640,6 +714,7 @@ async function main() {
     })
     .signers([buyer2])
     .rpc();
+  await sleep(1200);
   const b2PostQuote = (await getAccount(connection, buyer2QuoteAta)).amount;
 
   // Claim Order 2: Seller 1
@@ -660,6 +735,7 @@ async function main() {
     })
     .signers([seller1])
     .rpc();
+  await sleep(1200);
   const s1PostQuote = (await getAccount(connection, seller1QuoteAta)).amount;
 
   // Claim Order 3: Seller 2
@@ -681,6 +757,7 @@ async function main() {
     })
     .signers([seller2])
     .rpc();
+  await sleep(1200);
   const s2PostQuote = (await getAccount(connection, seller2QuoteAta)).amount;
   const s2PostBase = (await getAccount(connection, seller2BaseAta)).amount;
 

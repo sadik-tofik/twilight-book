@@ -9,6 +9,9 @@ skip-lint = false
 [programs.localnet]
 twilight_book = "HBVEPbKCUemrSTwPQegnKHhA9JfuWJ82DDG8r6VfeQ4h"
 
+[programs.devnet]
+twilight_book = "HBVEPbKCUemrSTwPQegnKHhA9JfuWJ82DDG8r6VfeQ4h"
+
 [registry]
 url = "https://api.apr.dev"
 

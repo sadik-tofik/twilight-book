@@ -130,30 +130,40 @@ We benchmarked a fully saturated batch auction containing **32 orders** (16 bids
 
 ## 5. Deployment Information & On-Chain Addresses
 
-> [!IMPORTANT]
-> **Verification Substrate Disclosure**:
-> - **Binary Verification**: All mathematical calculations, CPI escrows, PDA derivations, and the 7-step E2E lifecycle in [`evidence_run.json`](./evidence_run.json) were verified against the deployed `.so` binary (`target/deploy/twilight_book.so`) on `solana-test-validator` (Localnet).
-> - **Devnet Status**: **PENDING / IN PROGRESS**. Devnet deployment (`anchor deploy --provider.cluster devnet`) requires ~3.5 SOL rent exemption for the 408,760-byte program binary. Once devnet wallet funding is confirmed, live Solana Explorer / Solscan links will be recorded below.
+> [!NOTE]
+> **Live Devnet Verification Confirmed**:
+> - **Deployed Program**: Live and active on Solana Devnet at `HBVEPbKCUemrSTwPQegnKHhA9JfuWJ82DDG8r6VfeQ4h`.
+> - **Binary & On-Chain Parity**: All mathematical calculations, CPI escrows, PDA derivations, and the 7-step E2E crossing scenario in [`evidence_run.json`](./evidence_run.json) have been executed and confirmed on **Solana Devnet**.
 
 | Component | Identifier / Address | Environment Status |
 | :--- | :--- | :--- |
-| **Program ID** | `HBVEPbKCUemrSTwPQegnKHhA9JfuWJ82DDG8r6VfeQ4h` | Localnet Verified / Devnet Keypair Ready |
-| **Deployer Key** | `C8oi9BAzmxdU27ENXunQKYp7UgR4DumaQ6cn55JmpdWd` | Protocol Authority (Awaiting Devnet Faucet) |
-| **Base Mint (tTSLA)**| `4iE46jY...` (Dynamic) | SPL Token (6 decimals) |
-| **Quote Mint (USDC)**| `CLA7BD...` (Dynamic) | SPL Token (6 decimals) |
-| **Market PDA** | Derived via `['market', base_mint, quote_mint]` | Verified on Local Validator |
-| **Vault Base PDA** | Derived via `['vault_base', market]` | Verified on Local Validator |
-| **Vault Quote PDA** | Derived via `['vault_quote', market]` | Verified on Local Validator |
-| **Batch PDA** | Derived via `['batch', market, epoch_id]` | Verified on Local Validator |
+| **Program ID** | [`HBVEPbKCUemrSTwPQegnKHhA9JfuWJ82DDG8r6VfeQ4h`](https://explorer.solana.com/address/HBVEPbKCUemrSTwPQegnKHhA9JfuWJ82DDG8r6VfeQ4h?cluster=devnet) | **Deployed on Devnet** (Slot 501035203) |
+| **ProgramData** | [`EUZAia9Q8bbBT9gJ23VrasR3Ucd9Jr4S3zDfxa6a7Uyg`](https://explorer.solana.com/address/EUZAia9Q8bbBT9gJ23VrasR3Ucd9Jr4S3zDfxa6a7Uyg?cluster=devnet) | Executable buffer (409,240 bytes) |
+| **Deployer / Authority** | [`C8oi9BAzmxdU27ENXunQKYp7UgR4DumaQ6cn55JmpdWd`](https://explorer.solana.com/address/C8oi9BAzmxdU27ENXunQKYp7UgR4DumaQ6cn55JmpdWd?cluster=devnet) | Protocol Authority |
+| **Market PDA** | [`4AzzVo3q7uEA4FhAAXzgEHYVJenawY1srz2ZeTpgvfVm`](https://explorer.solana.com/address/4AzzVo3q7uEA4FhAAXzgEHYVJenawY1srz2ZeTpgvfVm?cluster=devnet) | Seed: `['market', base_mint, quote_mint]` |
+| **Vault Base PDA** | [`5nv9C68XRZrrCoK2Uam7whR5aia6no8QfissnCfiUBVo`](https://explorer.solana.com/address/5nv9C68XRZrrCoK2Uam7whR5aia6no8QfissnCfiUBVo?cluster=devnet) | Seed: `['vault_base', market]` |
+| **Vault Quote PDA** | [`GqrnFXreCLifnrNi68aP2rmjg6Kb2Kr5BWq94eZZenNG`](https://explorer.solana.com/address/GqrnFXreCLifnrNi68aP2rmjg6Kb2Kr5BWq94eZZenNG?cluster=devnet) | Seed: `['vault_quote', market]` |
+| **Mock Pyth Oracle PDA** | [`9vVo3wcMuzT8mCAhVAJ7Y2Uempbyd8uvw4zhRUASXams`](https://explorer.solana.com/address/9vVo3wcMuzT8mCAhVAJ7Y2Uempbyd8uvw4zhRUASXams?cluster=devnet) | Pyth V2 Binary Structure |
+| **Epoch 0 Batch PDA** | [`88QgSKk1b8bDAiY4RsRxXQtF2dHztAd7XJduVnXeyYQy`](https://explorer.solana.com/address/88QgSKk1b8bDAiY4RsRxXQtF2dHztAd7XJduVnXeyYQy?cluster=devnet) | Seed: `['batch', market, 0]` |
+| **Epoch 1 Batch PDA** | [`BcehrgwuWTgzFjFP9UyB5sKH5oMA8Jm2spRv2TU2yk4q`](https://explorer.solana.com/address/BcehrgwuWTgzFjFP9UyB5sKH5oMA8Jm2spRv2TU2yk4q?cluster=devnet) | Seed: `['batch', market, 1]` |
 
-### Live Devnet Transactions (Solscan / Solana Explorer)
-*Status: Pending Devnet Deploy*
-- `InitializeMarket`: `[PENDING DEVNET FUNDING]`
-- `SetMockOracle`: `[PENDING DEVNET FUNDING]`
-- `EvaluateMarketMode`: `[PENDING DEVNET FUNDING]`
-- `PlaceBatchOrder`: `[PENDING DEVNET FUNDING]`
-- `SettleBatchAuction`: `[PENDING DEVNET FUNDING]`
-- `ClaimOrderProceeds`: `[PENDING DEVNET FUNDING]`
+### Live Devnet Transactions (Solana Explorer Links)
+All 7 lifecycle steps executed on Solana Devnet and confirmed:
+
+1. **`InitializeMarket`**:  
+   [`3UZHxa2M15MTnqxaN7YhcV5c6MjKQ5f4SppVo78NpDjsXvBZ6XSUcu43Rkr56Gc5GYBsrfiWNmLaSHFEPpdTQSv9`](https://explorer.solana.com/tx/3UZHxa2M15MTnqxaN7YhcV5c6MjKQ5f4SppVo78NpDjsXvBZ6XSUcu43Rkr56Gc5GYBsrfiWNmLaSHFEPpdTQSv9?cluster=devnet)
+2. **`SetMockOracle` (Weekend Shock Injection: $\sigma = \$6.00 \approx 2,798$ bps)**:  
+   [`5KyJ5hvQa4BJm2rGpgtkQMSyZbDBCx2QSSit73hVeoCcaGapbDNqx8iiJpC9j7UbevMzNotib9h5Y4DSpKVGTZcK`](https://explorer.solana.com/tx/5KyJ5hvQa4BJm2rGpgtkQMSyZbDBCx2QSSit73hVeoCcaGapbDNqx8iiJpC9j7UbevMzNotib9h5Y4DSpKVGTZcK?cluster=devnet)
+3. **`EvaluateMarketMode` (Circuit Breaker Tripped $\to$ BatchAuction)**:  
+   [`5VXqw6RA2dJNW1XdgP5bMLAnVAWZvhZTi7FDvmEErBrh4qMk4kuDLoeuYpPYb93npthGyrkn1Ymj8XKbRpgUXZgr`](https://explorer.solana.com/tx/5VXqw6RA2dJNW1XdgP5bMLAnVAWZvhZTi7FDvmEErBrh4qMk4kuDLoeuYpPYb93npthGyrkn1Ymj8XKbRpgUXZgr?cluster=devnet)
+4. **`PlaceBatchOrder` (4 crossed limit orders deposited into ring buffer)**:  
+   [`5apRZi3An1FwjM2yH7xDGEMSNR4HWZnLYkFiPxNB1MdtKSqwvZ5Mtmi4uee5tmiZiemkRAGvnbmeV7LmMySRHERc`](https://explorer.solana.com/tx/5apRZi3An1FwjM2yH7xDGEMSNR4HWZnLYkFiPxNB1MdtKSqwvZ5Mtmi4uee5tmiZiemkRAGvnbmeV7LmMySRHERc?cluster=devnet)
+5. **`SettleBatchAuction` (Uniform clearing $P^* = \$214.60, Q^* = 10$, epoch rolled)**:  
+   [`5BhgvQtcZPmpVx8xeTUtcpFcito5iCf5QBKBYZsk2oqzUPLVzgKx7PHXynF3uJEdqCk5H1HvMpFoQUCGHJn9QaJC`](https://explorer.solana.com/tx/5BhgvQtcZPmpVx8xeTUtcpFcito5iCf5QBKBYZsk2oqzUPLVzgKx7PHXynF3uJEdqCk5H1HvMpFoQUCGHJn9QaJC?cluster=devnet)
+6. **`ClaimOrderProceeds` (Filled shares, surplus refund, seller proceeds, unfilled refund)**:  
+   [`5KNnjxqu7MC4PQaYKRHaP9p3RBs7jsW1uJPYtLZZAEeAfYUSNmZeHpzHyWP46aYF43zyKdWPbTZACdmzEZgDhqsL`](https://explorer.solana.com/tx/5KNnjxqu7MC4PQaYKRHaP9p3RBs7jsW1uJPYtLZZAEeAfYUSNmZeHpzHyWP46aYF43zyKdWPbTZACdmzEZgDhqsL?cluster=devnet)
+7. **`Invariants Zero-Leakage (INV-01 & INV-02)`**:  
+   Confirmed: Base Vault = `0.000000` tTSLA, Quote Vault = `$0.000000` USDC. Exact zero protocol leakage.
 
 ---
 
