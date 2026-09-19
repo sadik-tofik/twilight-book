@@ -500,8 +500,8 @@ await program.methods
   .accounts({
     keeper: wallet.publicKey,
     market: marketPda,
-    currentBatch: currentBatchPda,
-    nextBatch: nextBatchPda,
+    epochBatch: epochBatchPda,
+    nextEpochBatch: nextEpochBatchPda,
     pythFeed,
     systemProgram: SystemProgram.programId,
   })
@@ -528,9 +528,12 @@ await program.methods
     vaultQuote,
     userBaseAta,
     userQuoteAta,
+    baseMint,
+    quoteMint,
     tokenProgram: TOKEN_PROGRAM_ID,
   })
   .rpc();`}
+
             />
           </div>
         );
