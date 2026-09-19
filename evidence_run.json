@@ -3,12 +3,12 @@
     "stepNumber": 1,
     "stepName": "initialize_market",
     "description": "Initialize Market PDA with manual vault CPIs, Pyth feed address, and BRS Rule 1 parameters.",
-    "txSignature": "21xcQB5aZpzpDVpuPSQAj68jgEzHhdrPFBxGpy8smFQ5s4ZJ5mT8gAEmPdq5iNgGVzqkWsfn9kPqgW82P2sbKhJQ",
+    "txSignature": "NTNEAEM3FGWb6267uHrdW2Fb5SjqJC2UjE1S5qyX27h4mGwqoAQvMDrCRdZEp3QfR1yhM1hAti5VaffJMUNKUtu",
     "pdas": {
-      "market": "29R6SRRJvw7AZ1QBk52dZCUEW5KrRGe1xMAnd6SCz3um",
-      "vault_base": "HhYuq7oV2prRWZntkBiyoPyHXdc2Lq7VZHyJWd3rJwep",
-      "vault_quote": "3pFec9cXFMSsgwE46LtcDSnFVapoLd8ewziEccwwi8nY",
-      "pyth_feed": "CfELQA4WTvmHGCbZehCGewHAghEZBbGRFpPJMuEjkWTN"
+      "market": "AMvmH3R3xiFHDk5v1dV4UFMwF7YSVeMdeiPGxqeoqy12",
+      "vault_base": "4mr631QFHF6LZ9LJH3TNxaSMU6jVDDDpyMCkwVX1rFZi",
+      "vault_quote": "4J5ZWQFCUv7HDMqh6zghzqjAzLRa29SHp4QAb5FtJd6T",
+      "pyth_feed": "7UC2Xx5R3kFFgAYt8o4zTa9ATgzAwFrRWzZzdKgB6cZx"
     },
     "args": {
       "max_conf_bps": 200,
@@ -41,16 +41,16 @@
     "stepNumber": 2,
     "stepName": "set_mock_oracle",
     "description": "Write Pyth V2 binary format into mock oracle account simulating a Weekend Shock.",
-    "txSignature": "WnnKbffDQPYjCYfTLdHTvAcueQfKZjQz2Xjhu2585QB8uWfWsFQNVDYBCKG7sN7vN8gYNFFCoeqpZBUuqV8Gg2G",
+    "txSignature": "3EbxJdM9f78JFAEdhydBKYhtoYgo2bvmBRnxy7QYnR7g96MT8eUdqpG3feNYK3Dwxz7eZyRvX95XJtbsb1sYq8V8",
     "pdas": {
-      "mock_oracle": "CfELQA4WTvmHGCbZehCGewHAghEZBbGRFpPJMuEjkWTN"
+      "mock_oracle": "7UC2Xx5R3kFFgAYt8o4zTa9ATgzAwFrRWzZzdKgB6cZx"
     },
     "args": {
       "price": "$214.50 (214_500_000)",
       "conf": "$6.00 (6_000_000, ~2798 bps)",
       "expo": -6,
       "status": "1 (Trading)",
-      "publish_time": 1789843631
+      "publish_time": 1789845125
     },
     "assertions": [
       {
@@ -78,10 +78,10 @@
     "stepNumber": 3,
     "stepName": "evaluate_market_mode",
     "description": "Evaluate Pyth confidence spread; trips circuit from Continuous to BatchAuction.",
-    "txSignature": "4TxNEEoXz2KDELeT1G2r4aVxBhxetoAgugRF9ok7hoeVxcZUnFALfjAZNbLvmP1nre7ByXCfeHSbTTRSEFEjDzdz",
+    "txSignature": "EGGjKKWBXXcQyuGzVXstV3sGboiqzwKPZXdr7ihPQwm7cngSTropSj9pa7kSuVFXxzAj9xncABcGeftP28ZcDhq",
     "pdas": {
-      "market": "29R6SRRJvw7AZ1QBk52dZCUEW5KrRGe1xMAnd6SCz3um",
-      "epoch_batch": "ByLdu3e9JKKY3krauqN8U629mxXU7W4pfLAuD57a4n1R"
+      "market": "AMvmH3R3xiFHDk5v1dV4UFMwF7YSVeMdeiPGxqeoqy12",
+      "epoch_batch": "6UAPB7SHz5V6qA69Ek9ScReAdnnE2R3eLWNZbwEMtZYe"
     },
     "assertions": [
       {
@@ -109,11 +109,11 @@
     "stepNumber": 4,
     "stepName": "place_batch_order",
     "description": "Deposit and escrow orders for Buyer 1, Buyer 2, Seller 1, and Seller 2 into ring buffer.",
-    "txSignature": "5nefEPR125a8HuxBPppVwocvJVsKiMCDuJPMLU15QUiXqw9Qs1k1x4rmSWLgD5zdbmYL4FyRxDCmKwBDFoiuQyF4",
+    "txSignature": "39BQzMkBEAUtgt5m1NHVgKxNumDttsXcPRhLppPTDYKCTVf3U4uKU8rU5wnSp9mYvM35qFYjpuavKbhmJoE4zoQX",
     "pdas": {
-      "epoch_batch": "ByLdu3e9JKKY3krauqN8U629mxXU7W4pfLAuD57a4n1R",
-      "vault_base": "HhYuq7oV2prRWZntkBiyoPyHXdc2Lq7VZHyJWd3rJwep",
-      "vault_quote": "3pFec9cXFMSsgwE46LtcDSnFVapoLd8ewziEccwwi8nY"
+      "epoch_batch": "6UAPB7SHz5V6qA69Ek9ScReAdnnE2R3eLWNZbwEMtZYe",
+      "vault_base": "4mr631QFHF6LZ9LJH3TNxaSMU6jVDDDpyMCkwVX1rFZi",
+      "vault_quote": "4J5ZWQFCUv7HDMqh6zghzqjAzLRa29SHp4QAb5FtJd6T"
     },
     "args": {
       "order0_buyer1": "Bid 10 shares @ $214.80 (escrow $2148.00 USDC)",
@@ -159,10 +159,10 @@
     "stepNumber": 5,
     "stepName": "settle_batch_auction",
     "description": "Permissionless keeper action clearing the uniform auction at maximum matched volume.",
-    "txSignature": "kTC61Ybfpmy2mhSUqvKiaPVisTDUJP5YNwZJKk93MR9Ckr2SxStEE7kLsR4jrcj82fW8KcUdiPayQFUhqED3Q8A",
+    "txSignature": "6bwsExzSCDWcxsNTD4HfjsAvGKCenUugtFaJdXuX3n8aNqshpYVu17fk4wRYKvdJjjFwZ78tA1xmABPRTuY9rqN",
     "pdas": {
-      "current_batch": "ByLdu3e9JKKY3krauqN8U629mxXU7W4pfLAuD57a4n1R",
-      "next_batch": "9MpkB76Tww9RyWbsNnszZWQPVcjBGgk4WUQcNXnqENBP"
+      "current_batch": "6UAPB7SHz5V6qA69Ek9ScReAdnnE2R3eLWNZbwEMtZYe",
+      "next_batch": "6f93aAbf5JUU8nRY5JGeeLqA4KW2WGdnKvCoPM8ofF3s"
     },
     "assertions": [
       {
@@ -220,9 +220,9 @@
     "stepNumber": 6,
     "stepName": "claim_order_proceeds",
     "description": "All 4 parties claim filled shares, sale proceeds, unfilled refunds, and price-improvement surplus.",
-    "txSignature": "2d76wfTEyieyrf6sKPWLS5bXSHK1HUNpw1xPmoiu7awhZtUf14R9pT2VQ26hmNXRLjubkAujMHJypb8uu7NgLTi8",
+    "txSignature": "3DpQscHPvy6QRccj3YHW9RHETKgcS4VrwjAFbKqvVBghUd2EHkQw9dKjdgn9sSd82LwmGwZNAQn2P1q8ezKNmZBT",
     "pdas": {
-      "epoch_batch": "ByLdu3e9JKKY3krauqN8U629mxXU7W4pfLAuD57a4n1R"
+      "epoch_batch": "6UAPB7SHz5V6qA69Ek9ScReAdnnE2R3eLWNZbwEMtZYe"
     },
     "assertions": [
       {
@@ -269,8 +269,8 @@
     "stepName": "invariants_zero_leakage",
     "description": "Verify INV-01 and INV-02: Zero base and quote token leakage from vaults after all claims.",
     "pdas": {
-      "vault_base": "HhYuq7oV2prRWZntkBiyoPyHXdc2Lq7VZHyJWd3rJwep",
-      "vault_quote": "3pFec9cXFMSsgwE46LtcDSnFVapoLd8ewziEccwwi8nY"
+      "vault_base": "4mr631QFHF6LZ9LJH3TNxaSMU6jVDDDpyMCkwVX1rFZi",
+      "vault_quote": "4J5ZWQFCUv7HDMqh6zghzqjAzLRa29SHp4QAb5FtJd6T"
     },
     "assertions": [
       {

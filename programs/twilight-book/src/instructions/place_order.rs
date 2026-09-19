@@ -53,7 +53,8 @@ pub fn handler(ctx: Context<PlaceBatchOrder>, side: OrderSide, lot_size: u64, li
     let epoch_batch = &ctx.accounts.epoch_batch;
     require!(epoch_batch.status == BatchStatus::AcceptingOrders, TwilightError::BatchNotAcceptingOrders);
 
-    let current_slot = Clock::get()?.slot;
+    let clock = Clock::get()?;
+    let current_slot = clock.slot;
     let freeze_start = epoch_batch
         .end_slot
         .checked_sub(FREEZE_WINDOW_SLOTS)
@@ -67,6 +68,11 @@ pub fn handler(ctx: Context<PlaceBatchOrder>, side: OrderSide, lot_size: u64, li
         let data = ctx.accounts.pyth_feed.try_borrow_data()?;
         let price_account: &SolanaPriceAccount =
             load_price_account(&data).map_err(|_| error!(TwilightError::InvalidOracleData))?;
+        let publish_time = price_account.timestamp;
+        require!(
+            clock.unix_timestamp.saturating_sub(publish_time) <= crate::instructions::circuit::STALENESS_THRESHOLD_SECONDS,
+            TwilightError::StaleOracle
+        );
         let agg = price_account.agg;
         require!(agg.price > 0, TwilightError::InvalidOracleData);
         let p_ref = scale_pyth_value(agg.price, price_account.expo)?;
