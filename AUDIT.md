@@ -94,7 +94,7 @@ A comprehensive security analysis was performed across all six program instructi
 | **INV-10** | Pro-Rata Limit Order Fill Allocation | **VERIFIED** | Marginal tier receives proportional fill with zero truncation loss |
 | **INV-11** | Price-Improvement Buyer Surplus Refund | **VERIFIED** | Verified exact \$2.00 refund on 10 shares ($P_{\text{limit}} = \$214.80, P^* = \$214.60$) |
 | **INV-12** | Continuous Trading Halts Under High Uncertainty | **VERIFIED** | Swaps halted when $\text{conf\_bps} \ge \text{max\_conf\_bps}$ |
-| **INV-13** | Double-Settle Immunity | **VERIFIED** | Anchor seed constraint + `BatchAlreadySettled` gate verified |
+| **INV-13** | Double-Settle Immunity | **VERIFIED** | Enforced by construction: Anchor PDA seed derivation on `market.current_epoch` (`ConstraintSeeds`) blocks replaying settled batches; `EpochNotYetEnded` blocks premature settlement of the rolled epoch; `BatchAlreadySettled` retained as defense-in-depth. |
 | **INV-14** | Single-Claim Enforcement | **VERIFIED** | `OrderAlreadyClaimed` error thrown on duplicate claim attempts |
 | **INV-15** | Bounded Execution Complexity ($<200\text{k CU}$) | **VERIFIED** | 32-order auction benchmarked at 78,229 CU |
 

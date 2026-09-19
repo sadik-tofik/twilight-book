@@ -181,9 +181,8 @@ describe("Sprint 7 Extended IVM Verification", () => {
     expect(settled.clearingPrice.toNumber()).to.be.greaterThan(0);
     expect(settled.matchedVolume.toNumber()).to.be.greaterThan(0);
 
-    // Verify double-settle rejection on the same batch (defense-in-depth:
-    // Anchor seed constraints prevent replaying settled epoch batches once market.current_epoch rolls,
-    // and the handler explicitly requires BatchStatus::AcceptingOrders).
+    // Test A: Attempting to replay settlement on historical epoch 0 by passing epochBatch0
+    // is rejected by Anchor PDA seed derivation because market.current_epoch has already rolled to 1.
     try {
       await ctx.program.methods
         .settleBatchAuction()
@@ -197,14 +196,33 @@ describe("Sprint 7 Extended IVM Verification", () => {
         })
         .signers([ctx.authority])
         .rpc();
-      expect.fail("Expected second settleBatchAuction to fail");
+      expect.fail("Expected second settleBatchAuction on epoch 0 to fail with ConstraintSeeds");
     } catch (err: any) {
-      const errStr = err.toString();
-      expect(
-        errStr.includes("BatchAlreadySettled") ||
-        errStr.includes("ConstraintSeeds") ||
-        errStr.includes("seeds")
-      ).to.be.true;
+      expect(err.toString()).to.include("ConstraintSeeds");
+    }
+
+    // Test B: Calling settleBatchAuction with correctly derived accounts for the new current epoch (epoch 1)
+    // fails with EpochNotYetEnded because the rolled epoch has not reached its end_slot.
+    const [epochBatch2] = PublicKey.findProgramAddressSync(
+      [Buffer.from("batch"), ctx.market.toBuffer(), new BN(2).toArrayLike(Buffer, "le", 8)],
+      ctx.program.programId
+    );
+    try {
+      await ctx.program.methods
+        .settleBatchAuction()
+        .accounts({
+          keeper: ctx.authority.publicKey,
+          market: ctx.market,
+          epochBatch: ctx.epochBatch1,
+          nextEpochBatch: epochBatch2,
+          pythFeed: ctx.pythFeed.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([ctx.authority])
+        .rpc();
+      expect.fail("Expected settleBatchAuction on epoch 1 to fail with EpochNotYetEnded");
+    } catch (err: any) {
+      expect(err.toString()).to.include("EpochNotYetEnded");
     }
   });
 });

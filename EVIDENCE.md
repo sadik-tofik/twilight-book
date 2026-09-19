@@ -63,7 +63,7 @@ TwilightBook's architecture is governed by 15 strict protocol invariants. All 15
 | **INV-10** | **Exact Pro-Rata Allocations**: Marginal orders at clearing price $P^*$ share residual fill proportionally without rounding loss. | `uniform_clearing.test.ts`, `e2e_verify.ts` | **PROVEN** |
 | **INV-11** | **Buyer Price-Improvement Surplus Refund**: Bidders escrowed at $P_{\text{limit}} > P^*$ receive $Q \times (P_{\text{limit}} - P^*)$ refund. | `zero_leakage.test.ts`, `e2e_verify.ts` | **PROVEN** |
 | **INV-12** | **Automatic Circuit Trip**: High Pyth confidence ($\ge 200$ bps) or `Halted` status trips market mode into `BatchAuction`. | `evaluate_market_mode.test.ts` | **PROVEN** |
-| **INV-13** | **Double-Settlement Rejection**: Epoch batches cannot be settled more than once; replay calls fail with `ConstraintSeeds` / `BatchAlreadySettled`. | `ivm_extended.test.ts` | **PROVEN** |
+| **INV-13** | **Double-Settlement Rejection**: Replaying settlement on a historical epoch is blocked by Anchor PDA seed derivation (`ConstraintSeeds`), while settling the rolled epoch prematurely is blocked by `EpochNotYetEnded`. Handler includes `BatchAlreadySettled` as defense-in-depth. | `ivm_extended.test.ts` | **PROVEN** |
 | **INV-14** | **Single-Claim Enforcement**: Double claims on filled or refunded orders fail with `TwilightError::OrderAlreadyClaimed`. | `zero_leakage.test.ts` | **PROVEN** |
 | **INV-15** | **Bounded Compute Unit Budget**: Saturated 32-order batch settles in **78,229 CU** ($\ll 200,000$ default limit). | `ivm_extended.test.ts` | **PROVEN** |
 
@@ -130,16 +130,30 @@ We benchmarked a fully saturated batch auction containing **32 orders** (16 bids
 
 ## 5. Deployment Information & On-Chain Addresses
 
-| Component | Identifier / Address | Details |
+> [!IMPORTANT]
+> **Verification Substrate Disclosure**:
+> - **Binary Verification**: All mathematical calculations, CPI escrows, PDA derivations, and the 7-step E2E lifecycle in [`evidence_run.json`](./evidence_run.json) were verified against the deployed `.so` binary (`target/deploy/twilight_book.so`) on `solana-test-validator` (Localnet).
+> - **Devnet Status**: **PENDING / IN PROGRESS**. Devnet deployment (`anchor deploy --provider.cluster devnet`) requires ~3.5 SOL rent exemption for the 408,760-byte program binary. Once devnet wallet funding is confirmed, live Solana Explorer / Solscan links will be recorded below.
+
+| Component | Identifier / Address | Environment Status |
 | :--- | :--- | :--- |
-| **Program ID** | `HBVEPbKCUemrSTwPQegnKHhA9JfuWJ82DDG8r6VfeQ4h` | Anchor Framework v0.30.1 / Solana 1.18 |
-| **Deployer Key** | `C8oi9BAzmxdU27ENXunQKYp7UgR4DumaQ6cn55JmpdWd` | Protocol Authority |
-| **Base Mint (tTSLA)**| `4iE46jY...` (Local/Devnet Dynamic) | SPL Token (6 decimals) |
-| **Quote Mint (USDC)**| `CLA7BD...` (Local/Devnet Dynamic) | SPL Token (6 decimals) |
-| **Market PDA** | Derived via `['market', base_mint, quote_mint]` | State holder & circuit mode |
-| **Vault Base PDA** | Derived via `['vault_base', market]` | Escrow vault for equities |
-| **Vault Quote PDA** | Derived via `['vault_quote', market]` | Escrow vault for quote stablecoins |
-| **Batch PDA** | Derived via `['batch', market, epoch_id]` | 32-slot order ring buffer |
+| **Program ID** | `HBVEPbKCUemrSTwPQegnKHhA9JfuWJ82DDG8r6VfeQ4h` | Localnet Verified / Devnet Keypair Ready |
+| **Deployer Key** | `C8oi9BAzmxdU27ENXunQKYp7UgR4DumaQ6cn55JmpdWd` | Protocol Authority (Awaiting Devnet Faucet) |
+| **Base Mint (tTSLA)**| `4iE46jY...` (Dynamic) | SPL Token (6 decimals) |
+| **Quote Mint (USDC)**| `CLA7BD...` (Dynamic) | SPL Token (6 decimals) |
+| **Market PDA** | Derived via `['market', base_mint, quote_mint]` | Verified on Local Validator |
+| **Vault Base PDA** | Derived via `['vault_base', market]` | Verified on Local Validator |
+| **Vault Quote PDA** | Derived via `['vault_quote', market]` | Verified on Local Validator |
+| **Batch PDA** | Derived via `['batch', market, epoch_id]` | Verified on Local Validator |
+
+### Live Devnet Transactions (Solscan / Solana Explorer)
+*Status: Pending Devnet Deploy*
+- `InitializeMarket`: `[PENDING DEVNET FUNDING]`
+- `SetMockOracle`: `[PENDING DEVNET FUNDING]`
+- `EvaluateMarketMode`: `[PENDING DEVNET FUNDING]`
+- `PlaceBatchOrder`: `[PENDING DEVNET FUNDING]`
+- `SettleBatchAuction`: `[PENDING DEVNET FUNDING]`
+- `ClaimOrderProceeds`: `[PENDING DEVNET FUNDING]`
 
 ---
 
