@@ -9,7 +9,7 @@ interface Props {
   oracle: OracleState;
   baseSymbol: string;
   quoteSymbol: string;
-  onPlaceOrder: (side: OrderSide, lotSize: number, limitPrice: number) => { success: boolean; error?: string };
+  onPlaceOrder: (side: OrderSide, lotSize: number, limitPrice: number) => { success: boolean; error?: string } | Promise<{ success: boolean; error?: string }>;
 }
 
 export const OrderForm: React.FC<Props> = ({
@@ -33,7 +33,7 @@ export const OrderForm: React.FC<Props> = ({
   // Client-side validation against confidence band
   const isOutOfBand = priceNum > 0 && (priceNum < oracle.minPrice || priceNum > oracle.maxPrice);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
 
@@ -57,7 +57,7 @@ export const OrderForm: React.FC<Props> = ({
       return;
     }
 
-    const res = onPlaceOrder(side, lotSizeNum, priceNum);
+    const res = await onPlaceOrder(side, lotSizeNum, priceNum);
     if (res.success) {
       setPlacedFeedback(true);
       setTimeout(() => setPlacedFeedback(false), 2000);

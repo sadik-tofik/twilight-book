@@ -10,8 +10,8 @@ interface Props {
   currentSlot: number;
   endSlot: number;
   clearingPrice: number;
-  onCancelOrder: (index: number) => { success: boolean; error?: string };
-  onClaimProceeds: (index: number) => { success: boolean; error?: string };
+  onCancelOrder: (index: number) => { success: boolean; error?: string } | Promise<{ success: boolean; error?: string } | void>;
+  onClaimProceeds: (index: number) => { success: boolean; error?: string } | Promise<{ success: boolean; error?: string } | void>;
 }
 
 export const OrderBookTable: React.FC<Props> = ({
