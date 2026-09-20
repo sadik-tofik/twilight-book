@@ -180,3 +180,53 @@ solana-test-validator --bpf-program HBVEPbKCUemrSTwPQegnKHhA9JfuWJ82DDG8r6VfeQ4h
 npx ts-node -T scripts/e2e_verify.ts
 ```
 All outputs, assertions, and signatures will match `evidence_run.json`.
+
+---
+
+## 7. Meteora Dynamic Bonding Curve (DBC) Integration & Devnet Launch
+
+To demonstrate composability with the broader Solana DeFi ecosystem, TwilightBook features turnkey compatibility with **Meteora Dynamic Bonding Curves (DBC)** (`dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN`).
+
+### The Architectural Synergy
+1. **Cold-Start Token Launch**: Pre-market stock tokens and tokenized equities (such as `bTSLA`) launch friction-free on Solana via Meteora DBC, establishing organic liquidity and initial price discovery.
+2. **24/7 Volatility Protection**: The moment traditional financial markets close, weekend volatility strikes, or Pyth flags wide confidence or trading halts, TwilightBook automatically bridges the DBC token into discrete batch auctions—preventing toxic MEV and front-running on-chain.
+
+### Live Devnet Deployment Artifacts
+
+All accounts and transactions were deployed and executed on Solana Devnet:
+
+| Component | Devnet Address / PDA | Details |
+| :--- | :--- | :--- |
+| **Meteora DBC Program** | [`dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN`](https://explorer.solana.com/address/dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN?cluster=devnet) | Official Meteora Devnet DBC Program |
+| **DBC Curve Config** | [`2oTJrtAiAZFeWJpoAchSEyzGxVJixh3BUY7ZDPvCnEGM`](https://explorer.solana.com/address/2oTJrtAiAZFeWJpoAchSEyzGxVJixh3BUY7ZDPvCnEGM?cluster=devnet) | Fixed BPS fee (100 bps), DAMM v2 migration target |
+| **Token Mint (`bTSLA`)** | [`oV46RdoFrSLSipxi9FEUVFbnQiY39Zc4s4dXsE2Lrue`](https://explorer.solana.com/address/oV46RdoFrSLSipxi9FEUVFbnQiY39Zc4s4dXsE2Lrue?cluster=devnet) | Tokenized Tesla (Meteora DBC), 6 Decimals, 1B Supply |
+| **DBC Pool PDA** | [`3oJcekrNqpmJUwyCogCgVKF8pWCpg66gYxhsKQU4BZeC`](https://explorer.solana.com/address/3oJcekrNqpmJUwyCogCgVKF8pWCpg66gYxhsKQU4BZeC?cluster=devnet) | Active bonding curve pool |
+| **DBC Base Vault** | [`6tYEnVe3Yg9LhY41ChhgaWX8qvh79dRppAmZiJaPLyHv`](https://explorer.solana.com/address/6tYEnVe3Yg9LhY41ChhgaWX8qvh79dRppAmZiJaPLyHv?cluster=devnet) | Holds remaining unminted curve supply |
+| **DBC Quote Vault** | [`HqmZSMYFXasfp7BYQDJJNKfd4ZGBR9kfRELJuWXMLjZT`](https://explorer.solana.com/address/HqmZSMYFXasfp7BYQDJJNKfd4ZGBR9kfRELJuWXMLjZT?cluster=devnet) | Accumulates SOL reserves |
+| **TwilightBook Market** | [`9N5oJRLyQciYuE1yPDtqFgUTMFAecmws1RnxFpE6i1EJ`](https://explorer.solana.com/address/9N5oJRLyQciYuE1yPDtqFgUTMFAecmws1RnxFpE6i1EJ?cluster=devnet) | TwilightBook Market instance initialized for `bTSLA` / USDC |
+| **Twilight Base Vault** | [`7oDb3eFTDH1ug6jpr17pJSqyWGcgRZztv7jRrcyF3UmD`](https://explorer.solana.com/address/7oDb3eFTDH1ug6jpr17pJSqyWGcgRZztv7jRrcyF3UmD?cluster=devnet) | Escrow vault for `bTSLA` batch orders |
+| **Twilight Quote Vault** | [`B72G8e42EJBkQQkJYURrhZ4XCpFYtgNyLgw7UJfUqy1B`](https://explorer.solana.com/address/B72G8e42EJBkQQkJYURrhZ4XCpFYtgNyLgw7UJfUqy1B?cluster=devnet) | Escrow vault for USDC batch orders |
+| **Twilight Pyth Feed** | [`7v33viaWSBW393QzaTKUbrghK346XRcTRkP2G9oQJVEr`](https://explorer.solana.com/address/7v33viaWSBW393QzaTKUbrghK346XRcTRkP2G9oQJVEr?cluster=devnet) | Oracle anchor for `bTSLA` ($214.50 ± $0.20) |
+
+### Verified Devnet Transactions
+
+1. **Create DBC Curve Configuration**:  
+   [`2pLC5cz66wgshLNAZ1TRWCkzhjndVK75bXAZBx6atUHhqMPhKNXey6nCDZEs3MKBGWVquURgY5SjdP4biirSQaJ8`](https://explorer.solana.com/tx/2pLC5cz66wgshLNAZ1TRWCkzhjndVK75bXAZBx6atUHhqMPhKNXey6nCDZEs3MKBGWVquURgY5SjdP4biirSQaJ8?cluster=devnet)
+2. **Deploy DBC Pool & Mint `bTSLA`**:  
+   [`vSdqdXSUvrth1LsPpm4pYvJryni72GMcYE686taMDBufnzprAPZB4eRWbcVN2EfQ54euc4UisNQxoTiW6tGxEvE`](https://explorer.solana.com/tx/vSdqdXSUvrth1LsPpm4pYvJryni72GMcYE686taMDBufnzprAPZB4eRWbcVN2EfQ54euc4UisNQxoTiW6tGxEvE?cluster=devnet)
+3. **Live Curve Swap #1 (0.005 SOL)**:  
+   [`2nr81qrUndWGPSwfyY86o7yKkPoEhay1ow8NZB6BWGg2PtwS9kthSymzL987onBtES3AyVSwF39tWLzHVzKDyGgU`](https://explorer.solana.com/tx/2nr81qrUndWGPSwfyY86o7yKkPoEhay1ow8NZB6BWGg2PtwS9kthSymzL987onBtES3AyVSwF39tWLzHVzKDyGgU?cluster=devnet)
+4. **Live Curve Swap #2 (0.005 SOL)**:  
+   [`2PZ5xtxWSFjmZSRaNsb3Lrw7B3nF1PnogF6RsxuUYnNKdJPuNRDJ4UUXtZCxqyhuQpDmnd251bo52iJ5Ch7jguWv`](https://explorer.solana.com/tx/2PZ5xtxWSFjmZSRaNsb3Lrw7B3nF1PnogF6RsxuUYnNKdJPuNRDJ4UUXtZCxqyhuQpDmnd251bo52iJ5Ch7jguWv?cluster=devnet)  
+   *(Deployer Trader Balance: **989,216.44643 `bTSLA`**)*
+5. **Initialize TwilightBook Market (`initialize_market`)**:  
+   [`3vZuZ81K4CpBz1Fe4AUfgz1rkMWEHmkAt3tQDK4CWEprjeRL9gvXQRYbRYxQfgdFekmccQ5k84yAx3eEUqz484hW`](https://explorer.solana.com/tx/3vZuZ81K4CpBz1Fe4AUfgz1rkMWEHmkAt3tQDK4CWEprjeRL9gvXQRYbRYxQfgdFekmccQ5k84yAx3eEUqz484hW?cluster=devnet)
+6. **Set Pyth Oracle Reference (`set_mock_oracle`)**:  
+   [`4s3HMjReSa1bjS3822sfhU1A6XLKVDrGYRZiKmKHzGkXXXv2kT9bKUhQijVfqFZ67kHYg8bFXUKfWSEDWXp3nwyu`](https://explorer.solana.com/tx/4s3HMjReSa1bjS3822sfhU1A6XLKVDrGYRZiKmKHzGkXXXv2kT9bKUhQijVfqFZ67kHYg8bFXUKfWSEDWXp3nwyu?cluster=devnet)
+
+Full JSON execution output is archived in [`evidence_dbc_launch.json`](./evidence_dbc_launch.json).
+
+### Reproduce DBC Launch & Integration Script
+```bash
+npx ts-node -T scripts/launch_via_dbc.ts
+```

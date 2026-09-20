@@ -29,7 +29,8 @@
 ### [1:30 - 2:30] The Live Cockpit Demo
 *(Demonstrator connects Phantom or Solflare wallet on `localhost:3000`)*
 
-> *"Let's see this live in our Trading Cockpit:*
+> *"Let's see this live in our Trading Cockpit with our tokenized equity `bTSLA`. This stock token launched through Meteora's bonding curve, and the moment it needs 24/7 protection, TwilightBook is already watching it.*
+>
 > 1. **Continuous Baseline**: *Notice our market status indicator is currently glowing green in `Continuous` mode. Pyth reports tTSLA at \$214.50 with tight confidence ($\pm \$0.20$).*
 > 2. **Simulating Weekend Shock**: *Using our Judge Injection Panel, let's simulate what happens when Sunday afternoon earnings leak: we inject a confidence blowout to $\pm \$6.00$ with Halted status. Instantly, our on-chain circuit trips: the banner turns Twilight Purple, and Epoch 0 begins accepting orders.*
 > 3. **Order Placement**: *We place a buy order for 10 shares @ \$214.80. The protocol verifies our limit falls inside the Pyth envelope and escrows quote tokens.*
@@ -37,9 +38,9 @@
 > 5. **Surplus & Zero-Leakage**: *When we hit `Claim Proceeds`, the buyer doesn't just receive their 10 shares of tTSLA—they receive a **\$2.00 price-improvement cash refund** because the clearing price was lower than their limit! Both vaults land at exactly zero token leakage."*
 
 ### [2:30 - 3:00] Conclusion & Rubric Fit
-> *"TwilightBook proves that high-performance batch auctions don't belong on an off-chain server—they can run natively, trustlessly, and cheaply on Solana L1.*
+> *"TwilightBook proves that high-performance batch auctions don't belong on an off-chain server—they can run natively, trustlessly, and cheaply on Solana L1. Whether a tokenized equity launches on Meteora's dynamic bonding curve or trades across institutional OTC desks, TwilightBook provides the mathematical anchor and MEV shield it needs 24/7.*
 > 
-> *Our codebase features 26 passing Bankrun tests, a 15-point Invariant Verification Matrix, an audited smart contract, and byte-identical financial precision. Thank you!"*
+> *Our codebase features 26 passing Bankrun tests, a 15-point Invariant Verification Matrix, an audited smart contract, live Meteora DBC integration, and byte-identical financial precision. Thank you!"*
 
 ---
 
@@ -81,5 +82,7 @@ Run through this checklist in the browser before presenting to ensure 100% readi
 
 If RPC latency or wallet extensions experience delays during a live judging session:
 1. **Fallback Video / Screencast**: Have a 90-second MP4 recording of the full browser click-through saved locally on desktop ready to play immediately.
-2. **Terminal Verification**: Run `npx ts-node -T scripts/e2e_verify.ts` in an open terminal. It runs the entire 7-step sequence in under 10 seconds and prints green checkmarks for every assertion.
-3. **Artifact Reference**: Point judges to [`EVIDENCE.md`](./EVIDENCE.md) and [`evidence_run.json`](./evidence_run.json) for cryptographically verified transaction signatures and account derivations.
+2. **Terminal Verification**:
+   - Run `npx ts-node -T scripts/e2e_verify.ts` to verify the core 7-step Pyth batch auction lifecycle in under 10 seconds.
+   - Run `npx ts-node -T scripts/launch_via_dbc.ts` to verify the live Meteora Dynamic Bonding Curve launch and TwilightBook market integration.
+3. **Artifact Reference**: Point judges to [`EVIDENCE.md`](./EVIDENCE.md), [`evidence_run.json`](./evidence_run.json), and [`evidence_dbc_launch.json`](./evidence_dbc_launch.json) for cryptographically verified transaction signatures and account derivations.
