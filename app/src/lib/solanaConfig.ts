@@ -72,14 +72,10 @@ export async function fetchLiveMarketState(
   marketPda = DEVNET_DEPLOYMENT.marketPda
 ): Promise<MarketState | null> {
   try {
-    const info = await connection.getAccountInfo(marketPda);
-    if (!info) return null;
     const program = new Program(idl as any, new AnchorProvider(connection, {} as any, {}));
     const market = await (program.account as any).market.fetch(marketPda);
 
     const modeKey = Object.keys(market.mode)[0] || 'continuous';
-    const baseVaultInfo = await connection.getTokenAccountBalance(market.vaultBase).catch(() => null);
-    const quoteVaultInfo = await connection.getTokenAccountBalance(market.vaultQuote).catch(() => null);
 
     return {
       address: marketPda.toBase58(),
@@ -90,8 +86,8 @@ export async function fetchLiveMarketState(
       epochDurationSlots: market.epochDurationSlots.toNumber(),
       maxConfBps: market.maxConfBps.toNumber(),
       confFilterMult: market.confFilterMult.toNumber(),
-      baseVaultBalance: baseVaultInfo ? parseFloat(baseVaultInfo.value.uiAmountString || '0') : 0,
-      quoteVaultBalance: quoteVaultInfo ? parseFloat(quoteVaultInfo.value.uiAmountString || '0') : 0,
+      baseVaultBalance: 0,
+      quoteVaultBalance: 0,
       pythFeed: market.pythFeed.toBase58(),
     };
   } catch (err) {
@@ -107,7 +103,7 @@ export async function fetchLiveBatchState(
   try {
     const program = new Program(idl as any, new AnchorProvider(connection, {} as any, {}));
     const batch = await (program.account as any).epochBatchState.fetch(batchPda);
-    const curSlot = await connection.getSlot("confirmed");
+    const curSlot = await connection.getSlot("confirmed").catch(() => batch.endSlot.toNumber());
 
     const statusKey = Object.keys(batch.status)[0] as any;
     const orders: BatchOrder[] = batch.orders.map((o: any, idx: number) => {

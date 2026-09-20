@@ -10,6 +10,25 @@ import { DEFAULT_RPC_URL } from '@/lib/solanaConfig';
 // Import wallet adapter UI default styles
 import '@solana/wallet-adapter-react-ui/styles.css';
 
+// Silence non-fatal RPC 429 rate-limiting retries and network hiccup logs from triggering Turbopack dev error overlay
+if (typeof window !== 'undefined') {
+  const origError = console.error;
+  console.error = (...args: any[]) => {
+    const msg = typeof args[0] === 'string' ? args[0] : (args[0]?.message || '');
+    if (
+      msg.includes('429') ||
+      msg.includes('Retrying after') ||
+      msg.includes('Failed to load resource') ||
+      msg.includes('ERR_NAME_NOT_RESOLVED') ||
+      msg.includes('net::ERR_')
+    ) {
+      console.warn(...args);
+      return;
+    }
+    origError.apply(console, args);
+  };
+}
+
 interface Props {
   children: ReactNode;
 }

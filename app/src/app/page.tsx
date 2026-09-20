@@ -87,7 +87,7 @@ export default function CockpitPage() {
   useEffect(() => {
     if (isLiveDevnet) {
       refreshOnChainState();
-      const interval = setInterval(refreshOnChainState, 10000);
+      const interval = setInterval(refreshOnChainState, 25000);
       return () => clearInterval(interval);
     }
   }, [isLiveDevnet, refreshOnChainState]);
