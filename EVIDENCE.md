@@ -204,9 +204,14 @@ All accounts and transactions were deployed and executed on Solana Devnet:
 | **DBC Base Vault** | [`6tYEnVe3Yg9LhY41ChhgaWX8qvh79dRppAmZiJaPLyHv`](https://explorer.solana.com/address/6tYEnVe3Yg9LhY41ChhgaWX8qvh79dRppAmZiJaPLyHv?cluster=devnet) | Holds remaining unminted curve supply |
 | **DBC Quote Vault** | [`HqmZSMYFXasfp7BYQDJJNKfd4ZGBR9kfRELJuWXMLjZT`](https://explorer.solana.com/address/HqmZSMYFXasfp7BYQDJJNKfd4ZGBR9kfRELJuWXMLjZT?cluster=devnet) | Accumulates SOL reserves |
 | **TwilightBook Market** | [`9N5oJRLyQciYuE1yPDtqFgUTMFAecmws1RnxFpE6i1EJ`](https://explorer.solana.com/address/9N5oJRLyQciYuE1yPDtqFgUTMFAecmws1RnxFpE6i1EJ?cluster=devnet) | TwilightBook Market instance initialized for `bTSLA` / USDC |
+| **Market Quote Mint** | [`Ba7J5A5jCViRSKk1UPfZZthz3sEBdEQBydh4a6ibJjA`](https://explorer.solana.com/address/Ba7J5A5jCViRSKk1UPfZZthz3sEBdEQBydh4a6ibJjA?cluster=devnet) | Devnet Test USDC (6 Decimals, matching Circle USDC specifications) |
 | **Twilight Base Vault** | [`7oDb3eFTDH1ug6jpr17pJSqyWGcgRZztv7jRrcyF3UmD`](https://explorer.solana.com/address/7oDb3eFTDH1ug6jpr17pJSqyWGcgRZztv7jRrcyF3UmD?cluster=devnet) | Escrow vault for `bTSLA` batch orders |
 | **Twilight Quote Vault** | [`B72G8e42EJBkQQkJYURrhZ4XCpFYtgNyLgw7UJfUqy1B`](https://explorer.solana.com/address/B72G8e42EJBkQQkJYURrhZ4XCpFYtgNyLgw7UJfUqy1B?cluster=devnet) | Escrow vault for USDC batch orders |
 | **Twilight Pyth Feed** | [`7v33viaWSBW393QzaTKUbrghK346XRcTRkP2G9oQJVEr`](https://explorer.solana.com/address/7v33viaWSBW393QzaTKUbrghK346XRcTRkP2G9oQJVEr?cluster=devnet) | Oracle anchor for `bTSLA` ($214.50 ± $0.20) |
+
+> [!NOTE]
+> **Dual Quote Currency Architecture**:
+> `bTSLA` bootstraps initial liquidity via a SOL-denominated Meteora DBC curve (`So11111111111111111111111111111111111111112`, standard convention for bonding curves bootstrapping on Solana); TwilightBook's protected batch-auction market for the same token trades against USDC (`Ba7J5A5jCViRSKk1UPfZZthz3sEBdEQBydh4a6ibJjA`, 6-decimal test USDC deployed for devnet verification), consistent with tokenized equity pricing conventions ($/share) and the rest of the TwilightBook protocol.
 
 ### Verified Devnet Transactions
 
