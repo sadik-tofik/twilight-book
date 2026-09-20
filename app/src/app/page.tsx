@@ -409,6 +409,13 @@ export default function CockpitPage() {
 
   const isAuctionEnded = batch.currentSlot >= batch.endSlot || batch.status === 'settled';
 
+  const handleTimerZero = useCallback(() => {
+    setBatch((prev) => {
+      if (prev.currentSlot >= prev.endSlot) return prev;
+      return { ...prev, currentSlot: prev.endSlot };
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#0B0D10] text-[#EDEFF2] flex flex-col font-sans">
       <TerminalHeader
@@ -512,9 +519,7 @@ export default function CockpitPage() {
             endSlot={batch.endSlot}
             currentSlot={batch.currentSlot}
             status={batch.status}
-            onTimerZero={() => {
-              setBatch((prev) => ({ ...prev, currentSlot: prev.endSlot }));
-            }}
+            onTimerZero={handleTimerZero}
           />
           <DepthChart
             totalBidVolume={batch.totalBidVolume}

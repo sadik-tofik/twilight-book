@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Lock, Timer } from 'lucide-react';
 
 interface Props {
@@ -23,21 +23,30 @@ export const CountdownRing: React.FC<Props> = ({
     return Math.round(slots * 0.4);
   });
 
+  const onTimerZeroRef = useRef(onTimerZero);
   useEffect(() => {
-    const totalSlots = Math.max(1, endSlot - startSlot);
+    onTimerZeroRef.current = onTimerZero;
+  }, [onTimerZero]);
+
+  const hasFiredRef = useRef(false);
+
+  useEffect(() => {
+    hasFiredRef.current = false;
+  }, [startSlot, endSlot]);
+
+  useEffect(() => {
     const slotsRemaining = Math.max(0, endSlot - currentSlot);
     const initialSec = Math.round(slotsRemaining * 0.4);
     setSecondsRemaining(initialSec);
 
-    if (slotsRemaining <= 0) {
-      if (onTimerZero) onTimerZero();
+    if (initialSec <= 0) {
       return;
     }
 
     const interval = setInterval(() => {
       setSecondsRemaining((prev) => {
         if (prev <= 1) {
-          if (onTimerZero) onTimerZero();
+          clearInterval(interval);
           return 0;
         }
         return prev - 1;
@@ -45,7 +54,15 @@ export const CountdownRing: React.FC<Props> = ({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [startSlot, endSlot, currentSlot, onTimerZero]);
+  }, [startSlot, endSlot, currentSlot]);
+
+  // Safely trigger onTimerZero when timer hits 0 without in-render side-effects
+  useEffect(() => {
+    if (secondsRemaining <= 0 && !hasFiredRef.current) {
+      hasFiredRef.current = true;
+      onTimerZeroRef.current?.();
+    }
+  }, [secondsRemaining]);
 
   const slotsRemaining = Math.max(0, endSlot - currentSlot);
   const totalSlots = Math.max(1, endSlot - startSlot);
