@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useMemo, ReactNode } from 'react';
+import React, { useMemo, useCallback, ReactNode } from 'react';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { WalletAdapterNetwork, WalletError } from '@solana/wallet-adapter-base';
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets';
 import { DEFAULT_RPC_URL } from '@/lib/solanaConfig';
@@ -25,9 +25,22 @@ export const SolanaWalletProvider: React.FC<Props> = ({ children }) => {
     []
   );
 
+  const handleError = useCallback((error: WalletError) => {
+    // Expected user rejection or cancellation shouldn't trigger Next.js dev overlay
+    if (
+      error.name === 'WalletSignTransactionError' ||
+      error.message?.includes('User rejected') ||
+      error.message?.includes('User cancelled')
+    ) {
+      console.warn('Wallet transaction rejected by user:', error.message);
+      return;
+    }
+    console.error('Wallet error:', error);
+  }, []);
+
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
+      <WalletProvider wallets={wallets} autoConnect onError={handleError}>
         <WalletModalProvider>{children}</WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
