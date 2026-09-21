@@ -28,6 +28,8 @@ export const DEVNET_DEPLOYMENT = {
   epoch1Batch: new PublicKey("BcehrgwuWTgzFjFP9UyB5sKH5oMA8Jm2spRv2TU2yk4q"),
   baseSymbol: "tTSLA",
   quoteSymbol: "USDC",
+  baseMint: new PublicKey("4iYXDWaHC5A1B5ymiLmqAyPt5K2miKS2yBaqHr98p9Am"),
+  quoteMint: new PublicKey("Ba7J5A5jCViRSKk1UPfZZthz3sEBdEQBydh4a6ibJjA"),
 };
 
 export function getConnection(rpcUrl: string = DEFAULT_RPC_URL): Connection {

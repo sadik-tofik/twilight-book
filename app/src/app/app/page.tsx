@@ -34,6 +34,7 @@ import {
   PROGRAM_ID,
 } from '@/lib/solanaConfig';
 import { ArrowSquareOut, CheckCircle, WarningCircle, CircleNotch, X } from '@phosphor-icons/react';
+import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 
 export default function CockpitPage() {
   const { connection } = useConnection();
@@ -260,8 +261,34 @@ export default function CockpitPage() {
       }
       try {
         setTxLoading(true);
-        setTxMessage(`Signing & escrowing ${side.toUpperCase()} order (${lotSize} shares @ $${limitPrice}) on Devnet...`);
         setTxError(null);
+
+        // Auto-check and initialize token accounts via faucet if not already created
+        const baseMint = DEVNET_DEPLOYMENT.baseMint;
+        const quoteMint = DEVNET_DEPLOYMENT.quoteMint;
+        const userBaseAta = getAssociatedTokenAddressSync(baseMint, wallet.publicKey);
+        const userQuoteAta = getAssociatedTokenAddressSync(quoteMint, wallet.publicKey);
+
+        const [baseAtaInfo, quoteAtaInfo] = await Promise.all([
+          connection.getAccountInfo(userBaseAta),
+          connection.getAccountInfo(userQuoteAta),
+        ]);
+
+        if (!baseAtaInfo || !quoteAtaInfo) {
+          setTxMessage("First-time setup: Initializing token accounts & funding test USDC from faucet...");
+          const res = await fetch('/api/faucet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recipient: wallet.publicKey.toBase58() }),
+          });
+          const faucetData = await res.json();
+          if (!res.ok || faucetData.error) {
+            throw new Error(faucetData.error || 'Failed to auto-initialize token accounts');
+          }
+          setTxMessage("Token accounts initialized! Now submitting order to Devnet...");
+        }
+
+        setTxMessage(`Signing & escrowing ${side.toUpperCase()} order (${lotSize} shares @ $${limitPrice}) on Devnet...`);
         const program = getAnchorProgram(connection, wallet);
         const sig = await executeOnChainPlaceOrder(program, wallet, side, lotSize, limitPrice);
         setOnChainTx(sig);

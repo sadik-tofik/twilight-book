@@ -92,15 +92,15 @@ export async function POST(req: NextRequest) {
       )
     );
 
-    // 3. Mint 1,000 USDC (quote) and 50 tTSLA (base)
-    // 6 decimals: 1,000 USDC = 1,000_000_000
-    // 6 decimals: 50 tTSLA = 50_000_000
+    // 3. Mint 10,000 USDC (quote) and 100 tTSLA (base)
+    // 6 decimals: 10,000 USDC = 10_000_000_000
+    // 6 decimals: 100 tTSLA = 100_000_000
     tx.add(
       createMintToInstruction(
         QUOTE_MINT,
         userQuoteAta,
         payer.publicKey,
-        1_000_000_000
+        10_000_000_000
       )
     );
 
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
         BASE_MINT,
         userBaseAta,
         payer.publicKey,
-        50_000_000
+        100_000_000
       )
     );
 
@@ -135,8 +135,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       signature,
-      mintedQuoteAmount: 1000,
-      mintedBaseAmount: 50,
+      mintedQuoteAmount: 10000,
+      mintedBaseAmount: 100,
       userQuoteAta: userQuoteAta.toBase58(),
       userBaseAta: userBaseAta.toBase58(),
     });
