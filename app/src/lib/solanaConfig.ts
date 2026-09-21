@@ -4,7 +4,11 @@ import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
 import idl from './twilight_book.json';
 import { MarketState, EpochBatchState, OracleState, BatchOrder, OrderSide } from './types';
 import { decodePythBuffer } from './mockPythDecoder';
-import { TOKEN_PROGRAM_ID, getAssociatedTokenAddressSync } from '@solana/spl-token';
+import {
+  TOKEN_PROGRAM_ID,
+  getAssociatedTokenAddressSync,
+  createAssociatedTokenAccountIdempotentInstruction,
+} from '@solana/spl-token';
 
 // TwilightBook Deployed Program ID on Solana Devnet
 export const PROGRAM_ID = new PublicKey(idl.address || "HBVEPbKCUemrSTwPQegnKHhA9JfuWJ82DDG8r6VfeQ4h");
@@ -221,14 +225,43 @@ export async function executeOnChainPlaceOrder(
   limitPrice: number,
   marketPda = DEVNET_DEPLOYMENT.marketPda
 ): Promise<string> {
-  const market = await (program.account as any).market.fetch(marketPda);
-  const [epochBatchPda] = findBatchPda(marketPda, market.currentEpoch.toNumber());
+  let market = await (program.account as any).market.fetch(marketPda);
+  let [epochBatchPda] = findBatchPda(marketPda, market.currentEpoch.toNumber());
+
+  // Check if current epoch is already expired / frozen on Devnet
+  try {
+    const curSlot = await program.provider.connection.getSlot('confirmed');
+    const batch = await (program.account as any).epochBatchState.fetch(epochBatchPda);
+    if (curSlot >= batch.endSlot.toNumber() - 5) {
+      console.log("Current epoch expired or within freeze window. Auto-rolling to next epoch via settleBatchAuction...");
+      await executeOnChainSettle(program, wallet, marketPda);
+      market = await (program.account as any).market.fetch(marketPda);
+      [epochBatchPda] = findBatchPda(marketPda, market.currentEpoch.toNumber());
+    }
+  } catch (e) {
+    console.warn("Epoch check warning:", e);
+  }
 
   const userBaseAta = getAssociatedTokenAddressSync(market.baseMint, wallet.publicKey);
   const userQuoteAta = getAssociatedTokenAddressSync(market.quoteMint, wallet.publicKey);
 
   const lotSizeBn = new BN(Math.round(lotSize * 1_000_000));
   const limitPriceBn = new BN(Math.round(limitPrice * 1_000_000));
+
+  const preInstructions = [
+    createAssociatedTokenAccountIdempotentInstruction(
+      wallet.publicKey,
+      userBaseAta,
+      wallet.publicKey,
+      market.baseMint
+    ),
+    createAssociatedTokenAccountIdempotentInstruction(
+      wallet.publicKey,
+      userQuoteAta,
+      wallet.publicKey,
+      market.quoteMint
+    ),
+  ];
 
   return await program.methods
     .placeBatchOrder(side === 'bid' ? { bid: {} } : { ask: {} }, lotSizeBn, limitPriceBn)
@@ -245,6 +278,7 @@ export async function executeOnChainPlaceOrder(
       pythFeed: market.pythFeed,
       tokenProgram: TOKEN_PROGRAM_ID,
     })
+    .preInstructions(preInstructions)
     .rpc();
 }
 

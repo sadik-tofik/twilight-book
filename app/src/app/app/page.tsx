@@ -53,12 +53,39 @@ export default function CockpitPage() {
   const [txMessage, setTxMessage] = useState<string | null>(null);
   const [txError, setTxError] = useState<string | null>(null);
 
-  // Auto-enable live devnet mode when a wallet connects
-  useEffect(() => {
-    if (wallet.connected && !isLiveDevnet) {
-      setIsLiveDevnet(true);
+  // Faucet state for Devnet test tokens
+  const [faucetLoading, setFaucetLoading] = useState(false);
+  const [faucetSuccess, setFaucetSuccess] = useState(false);
+
+  const handleRequestFaucet = async () => {
+    if (!wallet.publicKey) {
+      setTxError("Please connect your Phantom or Solflare wallet first.");
+      return;
     }
-  }, [wallet.connected, isLiveDevnet]);
+    try {
+      setFaucetLoading(true);
+      setTxError(null);
+      setTxMessage("Airdropping 1,000 Devnet USDC & 50 tTSLA from Mint Authority...");
+      const res = await fetch('/api/faucet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recipient: wallet.publicKey.toBase58() }),
+      });
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || 'Faucet request failed');
+      }
+      setFaucetSuccess(true);
+      setTxMessage(`Airdrop confirmed! Minted 1,000 USDC & 50 tTSLA. Tx: ${data.signature.slice(0, 8)}...`);
+      setOnChainTx(data.signature);
+      await refreshOnChainState();
+      setTimeout(() => setFaucetSuccess(false), 5000);
+    } catch (err: any) {
+      setTxError(err?.message || 'Failed to receive devnet test tokens.');
+    } finally {
+      setFaucetLoading(false);
+    }
+  };
 
   // Sync state from Solana Devnet when Live Mode is active
   const refreshOnChainState = useCallback(async () => {
@@ -426,7 +453,41 @@ export default function CockpitPage() {
         quoteSymbol={market.quoteSymbol}
         isLiveDevnet={isLiveDevnet}
         onToggleLiveDevnet={() => setIsLiveDevnet((prev) => !prev)}
+        onRequestFaucet={handleRequestFaucet}
+        faucetLoading={faucetLoading}
+        faucetSuccess={faucetSuccess}
       />
+
+      {/* Devnet Test Tokens Helper Banner for Connected Live Users */}
+      {isLiveDevnet && wallet.connected && (
+        <div className="bg-signal-amber/10 border-b border-signal-amber/30 px-4 sm:px-6 py-2">
+          <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs font-mono">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-signal-amber animate-pulse" />
+              <span className="text-neutral-900 font-semibold">
+                Devnet Live Wallet Active ({wallet.publicKey?.toBase58().slice(0, 4)}...{wallet.publicKey?.toBase58().slice(-4)})
+              </span>
+              <span className="text-neutral-500 hidden sm:inline">— Need test USDC &amp; tTSLA to escrow on-chain orders?</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleRequestFaucet}
+                disabled={faucetLoading}
+                className="px-3 py-1 rounded bg-signal-amber text-neutral-50 font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
+              >
+                {faucetLoading ? 'Minting...' : faucetSuccess ? '✓ 1,000 USDC Minted!' : 'Airdrop Test Tokens'}
+              </button>
+              <button
+                onClick={() => setIsLiveDevnet(false)}
+                className="px-2.5 py-1 rounded border border-neutral-300 hover:bg-neutral-200/50 text-neutral-600 transition-colors cursor-pointer"
+                title="Switch to Instant Sim to rehearse without devnet wallet prompts"
+              >
+                Switch to Instant Sim
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Transaction & Environment Status Banner */}
       <div className="border-b border-neutral-200 bg-neutral-100 px-4 sm:px-6 py-2.5">

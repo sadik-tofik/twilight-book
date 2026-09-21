@@ -12,6 +12,7 @@ import {
   ArrowSquareOut,
   Broadcast,
   Lightning,
+  Coins,
   X,
 } from '@phosphor-icons/react';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -26,6 +27,9 @@ interface Props {
   quoteSymbol: string;
   isLiveDevnet?: boolean;
   onToggleLiveDevnet?: () => void;
+  onRequestFaucet?: () => void;
+  faucetLoading?: boolean;
+  faucetSuccess?: boolean;
   onSelectPair?: (symbol: string) => void;
 }
 
@@ -37,6 +41,9 @@ export const TerminalHeader: React.FC<Props> = ({
   quoteSymbol,
   isLiveDevnet = false,
   onToggleLiveDevnet,
+  onRequestFaucet,
+  faucetLoading = false,
+  faucetSuccess = false,
 }) => {
   const [mounted, setMounted] = useState(false);
   const { publicKey, disconnect, connected, connecting } = useWallet();
@@ -133,6 +140,18 @@ export const TerminalHeader: React.FC<Props> = ({
             <BookOpen size={14} className="text-signal-amber" />
             <span>Docs</span>
           </Link>
+
+          {isLiveDevnet && connected && onRequestFaucet && (
+            <button
+              onClick={onRequestFaucet}
+              disabled={faucetLoading}
+              className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-signal-amber/10 border border-signal-amber/30 hover:bg-signal-amber/20 text-signal-amber text-xs font-mono transition-colors cursor-pointer disabled:opacity-50"
+              title="Airdrop 1,000 Devnet USDC and 50 tTSLA directly from the Mint Authority"
+            >
+              <Coins size={14} />
+              <span>{faucetLoading ? 'Minting...' : faucetSuccess ? '✓ Funded' : 'Airdrop USDC'}</span>
+            </button>
+          )}
 
           {/* Theme Toggle Button per §8.7 */}
           <ThemeToggle />
