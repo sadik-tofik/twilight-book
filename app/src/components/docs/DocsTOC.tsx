@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { AlignLeft } from 'lucide-react';
+import { TextAlignLeft } from '@phosphor-icons/react';
 
 interface Heading {
   id: string;
@@ -44,8 +44,8 @@ export const DocsTOC: React.FC<Props> = ({ headings }) => {
   return (
     <aside className="w-56 shrink-0 py-8 pl-6 hidden xl:block">
       <div className="sticky top-24 space-y-3">
-        <div className="flex items-center gap-2 text-[11px] font-bold text-[#8A919C] uppercase tracking-wider">
-          <AlignLeft className="w-3.5 h-3.5" />
+        <div className="flex items-center gap-2 text-[11px] font-bold text-neutral-500 uppercase tracking-wider font-mono">
+          <TextAlignLeft size={14} />
           <span>On this page</span>
         </div>
 
@@ -58,8 +58,8 @@ export const DocsTOC: React.FC<Props> = ({ headings }) => {
                   href={`#${h.id}`}
                   className={`block transition-colors leading-relaxed ${
                     isActive
-                      ? 'text-[#5B8DEF] font-semibold'
-                      : 'text-zinc-400 hover:text-zinc-200'
+                      ? 'text-signal-amber font-semibold'
+                      : 'text-neutral-500 hover:text-neutral-900'
                   }`}
                 >
                   {h.title}

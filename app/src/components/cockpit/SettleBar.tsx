@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Gavel, CheckCircle2, TrendingUp, Sparkles } from 'lucide-react';
+import { Gavel, CheckCircle, TrendUp, Sparkle } from '@phosphor-icons/react';
 
 interface Props {
   isAuctionEnded: boolean;
@@ -31,40 +31,40 @@ export const SettleBar: React.FC<Props> = ({
   const isSettled = clearingPrice > 0;
 
   return (
-    <div className="bg-[#131619] border border-[#242A30] rounded-lg p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="bg-neutral-100 border border-neutral-200 rounded-lg p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
       <div className="flex items-center gap-3">
         <div
-          className={`p-2 rounded-lg border ${
+          className={`p-2.5 rounded-lg border ${
             isSettled
-              ? 'bg-[#3ECF8E]/10 border-[#3ECF8E]/30 text-[#3ECF8E]'
-              : 'bg-[#B98CE8]/10 border-[#B98CE8]/30 text-[#B98CE8]'
+              ? 'bg-signal-green/10 border-signal-green/30 text-signal-green'
+              : 'bg-signal-violet/10 border-signal-violet/30 text-signal-violet'
           }`}
         >
           {isSettled ? (
-            <CheckCircle2 className="w-5 h-5" />
+            <CheckCircle size={22} weight="bold" />
           ) : (
-            <Gavel className="w-5 h-5" />
+            <Gavel size={22} weight="bold" />
           )}
         </div>
 
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-bold text-sm text-[#EDEFF2]">
+            <span className="font-bold text-sm text-neutral-900">
               {isSettled ? `Epoch #${currentEpoch} Settled` : `Epoch #${currentEpoch} Clearing Engine`}
             </span>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-[#1B1F24] border border-[#242A30] text-zinc-400 font-mono">
+            <span className="text-[10px] px-2 py-0.5 rounded-full bg-neutral-150 border border-neutral-200 text-neutral-500 font-mono">
               Keeper Action
             </span>
           </div>
-          <div className="text-xs text-[#8A919C] font-mono mt-0.5">
+          <div className="text-xs text-neutral-500 font-mono mt-0.5">
             {isSettled ? (
-              <span className="text-zinc-300">
+              <span className="text-neutral-900">
                 Single uniform equilibrium: All trades execute at{' '}
-                <strong className="text-[#3ECF8E] font-bold">
+                <strong className="font-martian text-signal-green font-bold">
                   P* = ${clearingPrice.toFixed(2)}
                 </strong>
                 , matching{' '}
-                <strong className="text-white font-bold">{matchedVolume} shares</strong>.
+                <strong className="text-neutral-900 font-bold">{matchedVolume} shares</strong>.
               </span>
             ) : (
               <span>
@@ -77,21 +77,21 @@ export const SettleBar: React.FC<Props> = ({
 
       <div className="flex items-center gap-3 w-full md:w-auto justify-end">
         {isSettled ? (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-[#3ECF8E]/10 border border-[#3ECF8E]/30 text-[#3ECF8E] text-xs font-mono">
-            <Sparkles className="w-4 h-4" />
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-signal-green/10 border border-signal-green/30 text-signal-green text-xs font-mono font-medium">
+            <Sparkle size={14} weight="fill" />
             <span>Auction Settled &amp; Rollover Complete</span>
           </div>
         ) : (
           <button
             onClick={handleSettle}
             disabled={settling}
-            className={`w-full md:w-auto px-5 py-2.5 rounded text-xs font-bold font-mono uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+            className={`w-full md:w-auto h-10 px-5 rounded-lg text-xs font-bold font-mono uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer ${
               isAuctionEnded
-                ? 'bg-[#B98CE8] text-[#0B0D10] hover:bg-[#B98CE8]/90 shadow-lg shadow-[#B98CE8]/20'
-                : 'bg-[#B98CE8]/20 text-[#B98CE8] border border-[#B98CE8]/40 hover:bg-[#B98CE8]/30'
+                ? 'bg-signal-amber text-neutral-50 hover:opacity-95'
+                : 'bg-neutral-50 text-signal-amber border border-signal-amber/40 hover:bg-signal-amber/10'
             }`}
           >
-            <TrendingUp className="w-4 h-4" />
+            <TrendUp size={15} weight="bold" />
             {settling
               ? 'Computing Uniform P* / Q*...'
               : isAuctionEnded

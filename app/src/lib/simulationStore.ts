@@ -1,4 +1,4 @@
-import { MarketState, EpochBatchState, OracleState, BatchOrder, OrderSide } from './types';
+import { MarketState, EpochBatchState, OracleState, BatchOrder } from './types';
 import { createMockPythState } from './mockPythDecoder';
 
 // Initial default state

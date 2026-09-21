@@ -1,30 +1,60 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Mono, Martian_Mono } from "next/font/google";
 import "./globals.css";
 import { SolanaWalletProvider } from "@/components/SolanaWalletProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const plexSans = IBM_Plex_Sans({
+  variable: "--font-plex-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
   subsets: ["latin"],
+  weight: ["400", "500"],
+  display: "swap",
+});
+
+const martianMono = Martian_Mono({
+  variable: "--font-martian-mono",
+  subsets: ["latin"],
+  weight: ["700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "TwilightBook — Discrete Batch Auction Protocol for Tokenized Equities",
-  description: "24/7 tokenized-equity trading terminal on Solana with dynamic Pyth circuit evaluator switching between continuous swaps and discrete uniform-price batch auctions.",
+  title: "TwilightBook — Tokenized Equities That Trade 24/7 on Solana",
+  description:
+    "Discrete uniform-price batch auction protocol on Solana. When Pyth confidence widens or markets halt, TwilightBook protects tokenized RWAs from toxic MEV.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      data-theme="dark"
+      suppressHydrationWarning
+      className={`${plexSans.variable} ${plexMono.variable} ${martianMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const theme = localStorage.getItem('twilight_theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', theme);
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
+      <body className="min-h-full flex flex-col font-sans bg-neutral-50 text-neutral-900">
         <SolanaWalletProvider>{children}</SolanaWalletProvider>
       </body>
     </html>

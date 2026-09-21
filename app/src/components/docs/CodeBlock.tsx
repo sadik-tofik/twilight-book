@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check } from '@phosphor-icons/react';
 
 interface Props {
   code: string;
@@ -18,27 +18,27 @@ export const CodeBlock: React.FC<Props> = ({ code, language = 'typescript' }) =>
   };
 
   return (
-    <div className="relative group my-4 rounded-lg overflow-hidden border border-[#242A30] bg-[#0B0D10]">
-      <div className="flex items-center justify-between px-4 py-1.5 bg-[#131619] border-b border-[#242A30] text-xs font-mono text-[#8A919C]">
+    <div className="relative group my-4 rounded-lg overflow-hidden border border-neutral-200 bg-neutral-50">
+      <div className="flex items-center justify-between px-4 py-1.5 bg-neutral-100 border-b border-neutral-200 text-xs font-mono text-neutral-500">
         <span>{language}</span>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 py-1 px-2 rounded hover:bg-[#1B1F24] text-zinc-400 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 py-1 px-2 rounded hover:bg-neutral-200 text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
         >
           {copied ? (
             <>
-              <Check className="w-3.5 h-3.5 text-[#3ECF8E]" />
-              <span className="text-[11px] text-[#3ECF8E]">Copied</span>
+              <Check size={14} weight="bold" className="text-signal-green" />
+              <span className="text-[11px] text-signal-green">Copied</span>
             </>
           ) : (
             <>
-              <Copy className="w-3.5 h-3.5" />
+              <Copy size={14} />
               <span className="text-[11px]">Copy</span>
             </>
           )}
         </button>
       </div>
-      <pre className="p-4 text-xs font-mono text-[#EDEFF2] overflow-x-auto leading-relaxed">
+      <pre className="p-4 text-xs font-mono text-neutral-900 overflow-x-auto leading-relaxed">
         <code>{code}</code>
       </pre>
     </div>

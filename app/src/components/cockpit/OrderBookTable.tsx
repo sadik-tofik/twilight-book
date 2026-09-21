@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { BatchOrder, BatchStatus } from '@/lib/types';
-import { Lock, CheckCircle, Clock, XCircle, ArrowUpRight, ArrowDownLeft, Gift } from 'lucide-react';
+import { Lock, CheckCircle, Clock, XCircle, ArrowUpRight, ArrowDownLeft, Gift } from '@phosphor-icons/react';
 
 interface Props {
   orders: BatchOrder[];
@@ -30,30 +30,33 @@ export const OrderBookTable: React.FC<Props> = ({
   // Filter out non-existent or cancelled orders
   const activeOrders = orders.filter((o) => o.lotSize > 0);
 
+  // Max lot size for visual depth bars per §8.5
+  const maxLotSize = Math.max(1, ...activeOrders.map((o) => o.lotSize));
+
   return (
-    <div className="bg-[#131619] border border-[#242A30] rounded-lg p-4">
-      <div className="flex items-center justify-between border-b border-[#242A30] pb-3 mb-3">
+    <div className="bg-neutral-100 border border-neutral-200 rounded-lg p-5">
+      <div className="flex items-center justify-between border-b border-neutral-200 pb-3 mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-[#8A919C] tracking-wide uppercase">
-            Active Epoch Orders
+          <span className="text-xs uppercase tracking-[0.06em] text-neutral-500 font-semibold">
+            ACTIVE EPOCH ORDERS
           </span>
-          <span className="text-[11px] font-mono text-zinc-400">
+          <span className="text-[11px] font-mono text-neutral-500">
             ({activeOrders.length} / 32 Ring Buffer)
           </span>
         </div>
 
         <div className="flex items-center gap-2 text-[11px] font-mono">
           {isSettled ? (
-            <span className="text-[#3ECF8E] flex items-center gap-1">
-              <CheckCircle className="w-3 h-3" /> Batch Cleared at P* = ${clearingPrice.toFixed(2)}
+            <span className="text-signal-green flex items-center gap-1 font-semibold">
+              <CheckCircle size={14} weight="bold" /> Batch Cleared at P* = ${clearingPrice.toFixed(2)}
             </span>
           ) : isFrozen ? (
-            <span className="text-[#E5544D] flex items-center gap-1">
-              <Lock className="w-3 h-3" /> Cancellations Locked (Freeze Window)
+            <span className="text-signal-red flex items-center gap-1 font-semibold">
+              <Lock size={14} weight="fill" /> Cancellations Locked (Freeze Window)
             </span>
           ) : (
-            <span className="text-zinc-500 flex items-center gap-1">
-              <Clock className="w-3 h-3" /> Cancellation Window Open
+            <span className="text-neutral-500 flex items-center gap-1">
+              <Clock size={14} /> Cancellation Window Open
             </span>
           )}
         </div>
@@ -62,20 +65,20 @@ export const OrderBookTable: React.FC<Props> = ({
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-[#242A30] text-[11px] text-[#8A919C] font-mono uppercase tracking-wider">
-              <th className="py-2 px-3">#</th>
-              <th className="py-2 px-3">Trader</th>
-              <th className="py-2 px-3">Side</th>
-              <th className="py-2 px-3 text-right">Shares</th>
-              <th className="py-2 px-3 text-right">Limit Price</th>
-              <th className="py-2 px-3 text-right">Filled</th>
-              <th className="py-2 px-3 text-right">Action</th>
+            <tr className="border-b border-neutral-200 text-xs text-neutral-500 font-mono uppercase tracking-wider">
+              <th className="py-2.5 px-3">#</th>
+              <th className="py-2.5 px-3">Trader</th>
+              <th className="py-2.5 px-3">Side</th>
+              <th className="py-2.5 px-3 text-right">Shares</th>
+              <th className="py-2.5 px-3 text-right">Limit Price</th>
+              <th className="py-2.5 px-3 text-right">Filled</th>
+              <th className="py-2.5 px-3 text-right">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#1B1F24] font-mono text-xs tabular-nums">
+          <tbody className="divide-y divide-neutral-200 font-mono text-sm tabular-nums">
             {activeOrders.length === 0 ? (
               <tr>
-                <td colSpan={7} className="py-8 text-center text-zinc-500 font-mono text-xs">
+                <td colSpan={7} className="py-8 text-center text-neutral-500 font-mono text-xs">
                   No batch orders placed in this epoch yet.
                 </td>
               </tr>
@@ -91,70 +94,87 @@ export const OrderBookTable: React.FC<Props> = ({
                   ? (order.limitPrice - clearingPrice) * order.filledLotSize
                   : 0;
 
+                const barWidth = Math.min(100, Math.round((order.lotSize / maxLotSize) * 100));
+
                 return (
-                  <tr key={order.index} className="hover:bg-[#1B1F24]/50 transition-colors">
-                    <td className="py-2.5 px-3 text-zinc-500">{order.index}</td>
-                    <td className="py-2.5 px-3 text-zinc-300 font-medium">{order.user}</td>
-                    <td className="py-2.5 px-3">
+                  <tr key={order.index} className="h-9 hover:bg-neutral-200/40 transition-colors">
+                    <td className="py-1 px-3 text-neutral-400">{order.index}</td>
+                    <td className="py-1 px-3 text-neutral-900 font-medium">{order.user}</td>
+                    <td className="py-1 px-3">
                       <span
-                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
                           isBid
-                            ? 'bg-[#3ECF8E]/10 text-[#3ECF8E]'
-                            : 'bg-[#E5544D]/10 text-[#E5544D]'
+                            ? 'bg-signal-green/10 text-signal-green'
+                            : 'bg-signal-red/10 text-signal-red'
                         }`}
                       >
                         {isBid ? (
-                          <ArrowUpRight className="w-3 h-3" />
+                          <ArrowUpRight size={12} weight="bold" />
                         ) : (
-                          <ArrowDownLeft className="w-3 h-3" />
+                          <ArrowDownLeft size={12} weight="bold" />
                         )}
-                        {isBid ? 'BID' : 'ASK'}
+                        {order.side.toUpperCase()}
                       </span>
                     </td>
-                    <td className="py-2.5 px-3 text-right text-[#EDEFF2]">{order.lotSize}</td>
-                    <td className="py-2.5 px-3 text-right text-zinc-300">
+                    <td className="py-1 px-3 text-right font-medium text-neutral-900 relative overflow-hidden">
+                      {/* Depth quantity bar per DESIGN_SYSTEM.md §8.5 */}
+                      <div
+                        aria-hidden="true"
+                        className={`absolute top-0 bottom-0 pointer-events-none transition-all duration-150 ${
+                          isBid ? 'right-0 bg-signal-green/[0.08]' : 'left-0 bg-signal-red/[0.08]'
+                        }`}
+                        style={{ width: `${barWidth}%` }}
+                      />
+                      <span className="relative z-10">{order.lotSize}</span>
+                    </td>
+                    <td className="py-1 px-3 text-right text-neutral-900">
                       ${order.limitPrice.toFixed(2)}
                     </td>
-                    <td className="py-2.5 px-3 text-right">
+                    <td className="py-1 px-3 text-right">
                       {isSettled ? (
                         <span
                           className={
                             order.filledLotSize > 0
-                              ? 'text-[#3ECF8E] font-bold'
-                              : 'text-zinc-500'
+                              ? 'text-signal-green font-bold'
+                              : 'text-neutral-400'
                           }
                         >
                           {order.filledLotSize} / {order.lotSize}
                         </span>
                       ) : (
-                        <span className="text-zinc-500">-</span>
+                        <span className="text-neutral-400">Pending</span>
                       )}
                     </td>
-                    <td className="py-2.5 px-3 text-right">
+                    <td className="py-1 px-3 text-right">
                       {isSettled ? (
                         order.claimed ? (
-                          <span className="text-zinc-500 text-[11px]">Claimed</span>
+                          <span className="text-[11px] text-neutral-400 px-2 py-1">Claimed</span>
                         ) : (
                           <button
                             onClick={() => onClaimProceeds(order.index)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#5B8DEF]/20 hover:bg-[#5B8DEF]/30 text-[#5B8DEF] border border-[#5B8DEF]/40 text-[11px] font-bold transition-all"
+                            className="inline-flex items-center gap-1 h-8 px-3 rounded-lg bg-signal-amber text-neutral-50 text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer"
                           >
-                            <Gift className="w-3 h-3" />
-                            Claim {hasSurplusRefund && `(+$${surplusAmount.toFixed(2)})`}
+                            <Gift size={13} weight="bold" />
+                            <span>Claim</span>
+                            {hasSurplusRefund && (
+                              <span className="text-[10px] bg-neutral-900/20 px-1 rounded">
+                                +${surplusAmount.toFixed(2)}
+                              </span>
+                            )}
                           </button>
                         )
                       ) : (
                         <button
-                          disabled={isFrozen}
                           onClick={() => onCancelOrder(order.index)}
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium border transition-all ${
+                          disabled={isFrozen}
+                          className={`inline-flex items-center gap-1 h-8 px-3 rounded-lg border text-xs transition-colors cursor-pointer ${
                             isFrozen
-                              ? 'text-zinc-600 border-zinc-800 cursor-not-allowed'
-                              : 'text-[#E5544D] border-[#E5544D]/30 hover:bg-[#E5544D]/10'
+                              ? 'border-neutral-200 text-neutral-400 cursor-not-allowed opacity-50'
+                              : 'border-neutral-300 text-neutral-500 hover:text-signal-red hover:border-signal-red/50'
                           }`}
                         >
-                          <XCircle className="w-3 h-3" />
-                          Cancel
+                          {isFrozen ? <Lock size={12} weight="fill" /> : <XCircle size={12} />}
+                          <span>Cancel</span>
                         </button>
                       )}
                     </td>

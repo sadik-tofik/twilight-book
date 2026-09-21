@@ -6,7 +6,7 @@ import { DocsSidebar } from '@/components/docs/DocsSidebar';
 
 export default function DocsLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#0B0D10] text-[#EDEFF2] flex flex-col">
+    <div className="min-h-screen bg-neutral-50 text-neutral-900 flex flex-col font-sans transition-colors duration-150">
       <DocsNav />
       <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 flex-1 flex">
         <DocsSidebar />

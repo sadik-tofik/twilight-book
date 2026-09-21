@@ -21,3 +21,5 @@ test-ledger/
 # app build output
 app/.next/
 app/out/
+app/AGENTS.md
+app/CLAUDE.md

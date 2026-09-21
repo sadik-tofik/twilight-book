@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { MarketMode, OrderSide, OracleState } from '@/lib/types';
-import { AlertCircle, ArrowUpRight, ArrowDownLeft, ShieldCheck, Check } from 'lucide-react';
+import { WarningCircle, ArrowUpRight, ArrowDownLeft, ShieldCheck, Check } from '@phosphor-icons/react';
 
 interface Props {
   mode: MarketMode;
@@ -67,49 +67,49 @@ export const OrderForm: React.FC<Props> = ({
   };
 
   return (
-    <div className="bg-[#131619] border border-[#242A30] rounded-lg p-5 flex flex-col justify-between">
+    <div className="bg-neutral-100 border border-neutral-200 rounded-lg p-5 flex flex-col justify-between">
       <div>
-        <div className="flex items-center justify-between border-b border-[#242A30] pb-3 mb-4">
-          <span className="text-xs font-semibold text-[#8A919C] tracking-wide uppercase">
-            Submit Limit Order
+        <div className="flex items-center justify-between border-b border-neutral-200 pb-3 mb-4">
+          <span className="text-xs uppercase tracking-[0.06em] text-neutral-500 font-semibold">
+            SUBMIT LIMIT ORDER
           </span>
-          <span className="text-[11px] font-mono text-zinc-400">
+          <span className="text-[11px] font-mono text-neutral-500">
             Escrowed Vault CPI
           </span>
         </div>
 
         {/* Side Toggle: Buy vs Sell */}
-        <div className="grid grid-cols-2 gap-2 p-1 bg-[#0B0D10] rounded-lg mb-4 border border-[#242A30]">
+        <div className="grid grid-cols-2 gap-2 p-1 bg-neutral-50 rounded-lg mb-4 border border-neutral-200">
           <button
             type="button"
             onClick={() => setSide('bid')}
-            className={`flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
               side === 'bid'
-                ? 'bg-[#3ECF8E] text-[#0B0D10] shadow'
-                : 'text-zinc-400 hover:text-white'
+                ? 'bg-signal-green text-neutral-50'
+                : 'text-neutral-500 hover:text-neutral-900'
             }`}
           >
-            <ArrowUpRight className="w-3.5 h-3.5" /> Buy ({baseSymbol})
+            <ArrowUpRight size={14} weight="bold" /> Buy ({baseSymbol})
           </button>
           <button
             type="button"
             onClick={() => setSide('ask')}
-            className={`flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded transition-all ${
+            className={`flex items-center justify-center gap-1.5 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
               side === 'ask'
-                ? 'bg-[#E5544D] text-[#0B0D10] shadow'
-                : 'text-zinc-400 hover:text-white'
+                ? 'bg-signal-red text-neutral-50'
+                : 'text-neutral-500 hover:text-neutral-900'
             }`}
           >
-            <ArrowDownLeft className="w-3.5 h-3.5" /> Sell ({baseSymbol})
+            <ArrowDownLeft size={14} weight="bold" /> Sell ({baseSymbol})
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Lot Size Input */}
           <div>
-            <div className="flex justify-between text-[11px] text-[#8A919C] mb-1">
-              <span>Lot Size ({baseSymbol})</span>
-              <span className="font-mono text-zinc-500">6 Decimals</span>
+            <div className="flex justify-between text-xs text-neutral-500 mb-1 font-mono">
+              <span>Lot Size (Shares)</span>
+              <span>Units: {baseSymbol}</span>
             </div>
             <div className="relative">
               <input
@@ -118,112 +118,106 @@ export const OrderForm: React.FC<Props> = ({
                 min="1"
                 value={lotSizeInput}
                 onChange={(e) => setLotSizeInput(e.target.value)}
-                className="w-full bg-[#1B1F24] border border-[#242A30] rounded px-3 py-2 text-sm font-mono text-white tabular-nums focus:outline-none focus:border-[#5B8DEF]"
+                className="w-full h-10 px-3 py-2 bg-neutral-50 border border-neutral-200 rounded-lg text-neutral-900 font-mono text-sm focus:outline-none focus:border-signal-amber focus:ring-2 focus:ring-signal-amber/20"
                 placeholder="10"
               />
-              <span className="absolute right-3 top-2.5 text-xs text-zinc-500 font-mono">
-                shares
+              <span className="absolute right-3 top-2.5 text-xs text-neutral-400 font-mono">
+                {baseSymbol}
               </span>
             </div>
           </div>
 
-          {/* Limit Price Input */}
+          {/* Limit Price Input with Confidence Band Guard */}
           <div>
-            <div className="flex justify-between text-[11px] text-[#8A919C] mb-1">
-              <span>Limit Price ({quoteSymbol})</span>
-              <button
-                type="button"
-                onClick={() => setPriceInput(oracle.price.toFixed(2))}
-                className="text-[10px] text-[#5B8DEF] hover:underline font-mono"
-              >
-                Use P_ref (${oracle.price.toFixed(2)})
-              </button>
+            <div className="flex justify-between text-xs text-neutral-500 mb-1 font-mono">
+              <span>Limit Price</span>
+              <span>Envelope: ${oracle.minPrice.toFixed(2)} - ${oracle.maxPrice.toFixed(2)}</span>
             </div>
             <div className="relative">
               <input
                 type="number"
                 step="0.01"
-                min="0.01"
                 value={priceInput}
                 onChange={(e) => setPriceInput(e.target.value)}
-                className={`w-full bg-[#1B1F24] border rounded px-3 py-2 text-sm font-mono text-white tabular-nums focus:outline-none ${
+                className={`w-full h-10 px-3 py-2 bg-neutral-50 border rounded-lg text-neutral-900 font-mono text-sm focus:outline-none ${
                   isOutOfBand
-                    ? 'border-[#E5544D] focus:border-[#E5544D]'
-                    : 'border-[#242A30] focus:border-[#5B8DEF]'
+                    ? 'border-signal-red focus:border-signal-red focus:ring-2 focus:ring-signal-red/20'
+                    : 'border-neutral-200 focus:border-signal-amber focus:ring-2 focus:ring-signal-amber/20'
                 }`}
-                placeholder="214.50"
+                placeholder={oracle.price.toFixed(2)}
               />
-              <span className="absolute right-3 top-2.5 text-xs text-zinc-500 font-mono">
-                USD
+              <span className="absolute right-3 top-2.5 text-xs text-neutral-400 font-mono">
+                {quoteSymbol}
               </span>
+            </div>
+
+            {isOutOfBand && (
+              <p className="text-signal-red text-xs mt-1.5 flex items-center gap-1 font-mono">
+                <WarningCircle size={13} weight="fill" />
+                <span>Price exceeds Pyth confidence band [${oracle.minPrice.toFixed(2)} - ${oracle.maxPrice.toFixed(2)}]</span>
+              </p>
+            )}
+          </div>
+
+          {/* Escrow Value Estimate */}
+          <div className="p-3 bg-neutral-150 border border-neutral-200 rounded-lg text-xs space-y-1 font-mono">
+            <div className="flex justify-between text-neutral-500">
+              <span>Required Escrow:</span>
+              <span className="text-neutral-900 font-bold tabular-nums">
+                {side === 'bid'
+                  ? `$${totalValue.toFixed(2)} ${quoteSymbol}`
+                  : `${lotSizeNum} ${baseSymbol}`}
+              </span>
+            </div>
+            <div className="flex justify-between text-[11px] text-neutral-400">
+              <span>Pricing Guarantee:</span>
+              <span className="text-signal-green">Uniform Clearing (P*)</span>
             </div>
           </div>
 
-          {/* Real-Time Client-Side Validation Warning Banner */}
-          {isOutOfBand && (
-            <div className="p-2.5 bg-[#E5544D]/10 border border-[#E5544D]/30 rounded text-[#E5544D] text-xs flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              <div className="leading-snug">
-                <span className="font-semibold block font-mono">
-                  OrderPriceExceedsConfidenceBand
-                </span>
-                Price must stay inside [${oracle.minPrice.toFixed(2)}, ${oracle.maxPrice.toFixed(2)}].
-              </div>
-            </div>
-          )}
-
+          {/* Error Notice */}
           {errorMsg && (
-            <div className="p-2.5 bg-[#E5544D]/10 border border-[#E5544D]/30 rounded text-[#E5544D] text-xs flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="p-2.5 bg-signal-red/10 border border-signal-red/30 rounded-lg text-signal-red text-xs flex items-start gap-2">
+              <WarningCircle size={15} weight="fill" className="shrink-0 mt-0.5" />
               <span>{errorMsg}</span>
             </div>
           )}
 
-          {/* Estimated Total */}
-          <div className="flex justify-between items-center py-2 px-3 bg-[#0B0D10] rounded border border-[#242A30] text-xs font-mono">
-            <span className="text-zinc-400">Total Escrow Value:</span>
-            <span className="text-white font-bold tabular-nums">
-              ${totalValue.toFixed(2)} {quoteSymbol}
-            </span>
-          </div>
-
-          {/* Submit Button (Gated when mode === continuous) */}
+          {/* Submit Action Button */}
           <button
             type="submit"
             disabled={!isBatchMode || isOutOfBand}
-            className={`w-full py-2.5 px-4 rounded font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 ${
+            className={`w-full h-10 px-4 rounded-lg font-bold text-xs font-mono tracking-wider uppercase transition-all flex items-center justify-center gap-2 cursor-pointer ${
               placedFeedback
-                ? 'bg-[#3ECF8E] text-[#0B0D10]'
+                ? 'bg-signal-green text-neutral-50'
                 : !isBatchMode
-                ? 'bg-[#1B1F24] text-zinc-500 border border-[#242A30] cursor-not-allowed'
+                ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed border border-neutral-300'
                 : isOutOfBand
-                ? 'bg-[#E5544D]/20 text-[#E5544D] border border-[#E5544D]/40 cursor-not-allowed'
-                : side === 'bid'
-                ? 'bg-[#3ECF8E] text-[#0B0D10] hover:bg-[#3ECF8E]/90'
-                : 'bg-[#E5544D] text-white hover:bg-[#E5544D]/90'
+                ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed border border-neutral-300'
+                : 'bg-signal-amber text-neutral-50 hover:opacity-95'
             }`}
           >
             {placedFeedback ? (
               <>
-                <Check className="w-4 h-4" /> Order Escrowed!
+                <Check size={16} weight="bold" />
+                <span>Order Escrowed & Recorded!</span>
               </>
             ) : !isBatchMode ? (
-              'Continuous Mode (CLMM Swaps Only)'
-            ) : isOutOfBand ? (
-              'Price Outside Confidence Band'
+              <>
+                <ShieldCheck size={16} />
+                <span>Continuous Mode (Batch Order Gated)</span>
+              </>
             ) : (
-              `Submit ${side === 'bid' ? 'Bid' : 'Ask'} to Batch`
+              <>
+                <span>Deposit & Escrow {side.toUpperCase()} Order</span>
+              </>
             )}
           </button>
         </form>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-[#242A30] flex items-center justify-between text-[10px] text-zinc-500 font-mono">
-        <span className="flex items-center gap-1">
-          <ShieldCheck className="w-3 h-3 text-[#3ECF8E]" />
-          Zero-Loss Invariant Escrow
-        </span>
-        <span>Anchor Fixed u64</span>
+      <div className="mt-4 pt-3 border-t border-neutral-200 text-[11px] text-neutral-400 text-center font-mono">
+        All clearing prices are uniform. Unfilled limits and price improvement surpluses are 100% refundable.
       </div>
     </div>
   );

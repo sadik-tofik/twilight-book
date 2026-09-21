@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { BarChart3 } from 'lucide-react';
+import { ChartBar } from '@phosphor-icons/react';
 
 interface Props {
   totalBidVolume: number;
@@ -23,14 +23,15 @@ export const DepthChart: React.FC<Props> = ({
   const askPercent = Math.round((totalAskVolume / totalVolume) * 100);
 
   return (
-    <div className="bg-[#131619] border border-[#242A30] rounded-lg p-4 flex flex-col justify-between">
-      <div className="flex items-center justify-between border-b border-[#242A30] pb-3 mb-3">
-        <span className="text-xs font-semibold text-[#8A919C] tracking-wide uppercase flex items-center gap-1.5">
-          <BarChart3 className="w-3.5 h-3.5" /> Batch Order Depth
+    <div className="bg-neutral-100 border border-neutral-200 rounded-lg p-4 sm:p-5 flex flex-col justify-between">
+      <div className="flex items-center justify-between border-b border-neutral-200 pb-3 mb-3">
+        <span className="text-xs uppercase tracking-[0.06em] text-neutral-500 font-semibold flex items-center gap-1.5">
+          <ChartBar size={14} className="text-signal-amber" />
+          <span>BATCH ORDER DEPTH</span>
         </span>
-        <span className="text-[11px] font-mono text-zinc-400">
+        <span className="text-[11px] font-mono text-neutral-500">
           Matched (Q*):{' '}
-          <strong className="text-[#3ECF8E] font-bold">
+          <strong className="text-signal-green font-bold">
             {matchedVolume && matchedVolume > 0 ? `${matchedVolume} shares` : 'Pending'}
           </strong>
         </span>
@@ -38,43 +39,48 @@ export const DepthChart: React.FC<Props> = ({
 
       <div className="grid grid-cols-2 gap-4 mb-3">
         <div>
-          <span className="text-[11px] text-[#8A919C] uppercase block mb-0.5">
+          <span className="text-[11px] text-neutral-500 uppercase block mb-0.5">
             Total Bids (Demand)
           </span>
-          <div className="font-mono text-xl font-bold text-[#3ECF8E] tabular-nums">
-            {totalBidVolume} <span className="text-xs text-zinc-500">{baseSymbol}</span>
+          <div className="font-mono text-xl font-bold text-signal-green tabular-nums">
+            {totalBidVolume} <span className="text-xs text-neutral-500 font-normal">{baseSymbol}</span>
           </div>
-          <span className="text-[10px] text-zinc-500 font-mono">{bidPercent}% of volume</span>
+          <span className="text-[10px] text-neutral-400 font-mono">{bidPercent}% of volume</span>
         </div>
 
         <div className="text-right">
-          <span className="text-[11px] text-[#8A919C] uppercase block mb-0.5">
+          <span className="text-[11px] text-neutral-500 uppercase block mb-0.5">
             Total Asks (Supply)
           </span>
-          <div className="font-mono text-xl font-bold text-[#E5544D] tabular-nums">
-            {totalAskVolume} <span className="text-xs text-zinc-500">{baseSymbol}</span>
+          <div className="font-mono text-xl font-bold text-signal-red tabular-nums">
+            {totalAskVolume} <span className="text-xs text-neutral-500 font-normal">{baseSymbol}</span>
           </div>
-          <span className="text-[10px] text-zinc-500 font-mono">{askPercent}% of volume</span>
+          <span className="text-[10px] text-neutral-400 font-mono">{askPercent}% of volume</span>
         </div>
       </div>
 
       {/* Visual Volume Bar */}
-      <div className="space-y-1">
-        <div className="h-3 w-full bg-[#0B0D10] rounded overflow-hidden flex border border-[#242A30]">
+      <div className="space-y-1.5">
+        <div className="h-3 w-full bg-neutral-50 rounded-lg overflow-hidden flex border border-neutral-200">
           <div
-            className="h-full bg-[#3ECF8E]/80 transition-all duration-300"
+            className="h-full bg-signal-green/80 transition-all duration-300"
             style={{ width: `${bidPercent}%` }}
           />
           <div
-            className="h-full bg-[#E5544D]/80 transition-all duration-300"
+            className="h-full bg-signal-red/80 transition-all duration-300"
             style={{ width: `${askPercent}%` }}
           />
         </div>
 
-        <div className="flex justify-between text-[10px] font-mono text-zinc-500">
+        <div className="flex justify-between items-baseline text-[10px] font-mono text-neutral-500">
           <span>Buyers (Bid)</span>
           {clearingPrice && clearingPrice > 0 ? (
-            <span className="text-[#B98CE8] font-bold">P* = ${clearingPrice.toFixed(2)}</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-[10px] text-neutral-500 uppercase">P* =</span>
+              <span className="font-martian text-2xl font-bold text-signal-violet tabular-nums leading-none">
+                ${clearingPrice.toFixed(2)}
+              </span>
+            </div>
           ) : (
             <span>Uniform Equilibrium</span>
           )}

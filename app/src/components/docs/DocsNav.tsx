@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { DOC_SECTIONS } from '@/lib/docsData';
 import { SearchModal } from './SearchModal';
-import { Search, ArrowLeft, Menu, X } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { MagnifyingGlass, ArrowLeft, List, X, ArrowRight } from '@phosphor-icons/react';
 
 export const DocsNav: React.FC = () => {
   const pathname = usePathname();
@@ -25,28 +26,28 @@ export const DocsNav: React.FC = () => {
 
   return (
     <>
-      <header className="border-b border-[#242A30] bg-[#0B0D10] sticky top-0 z-40">
+      <header className="border-b border-neutral-200 bg-neutral-50/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-          {/* Brand & Cockpit Link */}
+          {/* Brand & Links */}
           <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded bg-gradient-to-br from-[#3ECF8E] to-[#B98CE8] flex items-center justify-center font-bold text-black text-sm tracking-wider">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center font-bold text-neutral-900 text-xs tracking-wider">
                 TB
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="font-bold text-base text-[#EDEFF2] tracking-tight">
+                <span className="font-bold text-base text-neutral-900 tracking-tight group-hover:text-signal-amber transition-colors">
                   TwilightBook
                 </span>
-                <span className="text-xs text-[#5B8DEF] font-mono font-medium">/docs</span>
+                <span className="text-xs text-signal-amber font-mono font-medium">/docs</span>
               </div>
             </Link>
 
             <Link
-              href="/"
-              className="hidden md:flex items-center gap-1.5 text-xs text-zinc-400 hover:text-white font-mono transition-colors"
+              href="/app"
+              className="hidden md:flex items-center gap-1.5 text-xs text-neutral-500 hover:text-neutral-900 font-mono transition-colors"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Trading Cockpit</span>
+              <ArrowLeft size={14} />
+              <span>Trading Cockpit</span>
             </Link>
           </div>
 
@@ -60,8 +61,8 @@ export const DocsNav: React.FC = () => {
                   href={`/docs/${sec.id}/${sec.pages[0].slug}`}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-colors ${
                     isActive
-                      ? 'bg-[#1B1F24] text-white border border-[#242A30]'
-                      : 'text-[#8A919C] hover:text-white hover:bg-[#131619]'
+                      ? 'bg-neutral-150 text-neutral-900 border border-neutral-200 shadow-sm'
+                      : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'
                   }`}
                 >
                   {sec.title}
@@ -70,67 +71,70 @@ export const DocsNav: React.FC = () => {
             })}
           </nav>
 
-          {/* Right: Search + GitHub */}
+          {/* Right: Search, ThemeToggle, App Link */}
           <div className="flex items-center gap-2.5">
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-[#131619] hover:bg-[#1B1F24] border border-[#242A30] text-xs text-zinc-400 transition-colors"
+              className="flex items-center gap-3 px-3 py-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200/50 border border-neutral-200 text-xs text-neutral-500 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <Search className="w-3.5 h-3.5" />
+                <MagnifyingGlass size={14} />
                 <span className="hidden sm:inline">Search docs...</span>
               </div>
-              <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-[#0B0D10] text-zinc-500 rounded border border-[#242A30]">
+              <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-mono bg-neutral-50 text-neutral-500 rounded border border-neutral-200">
                 ⌘K
               </kbd>
             </button>
 
-            <a
-              href="https://github.com/sadik-tofik/twilight-book"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg bg-[#131619] hover:bg-[#1B1F24] border border-[#242A30] text-zinc-400 hover:text-white transition-colors"
-              title="View on GitHub"
+            <ThemeToggle />
+
+            <Link
+              href="/app"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-signal-amber text-neutral-50 text-xs font-mono font-medium hover:opacity-95 transition-opacity"
             >
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-              </svg>
-            </a>
+              <span>Cockpit</span>
+              <ArrowRight size={12} weight="bold" />
+            </Link>
 
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg bg-[#131619] border border-[#242A30] text-zinc-400"
+              className="lg:hidden p-2 rounded-lg bg-neutral-100 border border-neutral-200 text-neutral-500 hover:text-neutral-900 cursor-pointer"
             >
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {mobileMenuOpen ? <X size={16} /> : <List size={16} />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Nav Dropdown */}
+        {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-[#242A30] bg-[#131619] px-4 py-3 space-y-1">
-            <Link
-              href="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 rounded text-xs text-zinc-400 hover:text-white"
-            >
-              ← Back to Trading Cockpit
-            </Link>
+          <div className="lg:hidden border-t border-neutral-200 bg-neutral-50 px-4 py-3 space-y-2">
+            <div className="text-[10px] uppercase font-mono text-neutral-400 font-bold px-2 py-1">
+              Documentation Sections
+            </div>
             {DOC_SECTIONS.map((sec) => (
               <Link
                 key={sec.id}
                 href={`/docs/${sec.id}/${sec.pages[0].slug}`}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-3 py-2 rounded text-xs font-semibold text-zinc-300 hover:bg-[#1B1F24]"
+                className="block px-3 py-2 rounded-lg text-xs font-semibold text-neutral-900 hover:bg-neutral-100"
               >
                 {sec.title}
               </Link>
             ))}
+            <div className="pt-2 border-t border-neutral-200 flex justify-between">
+              <Link
+                href="/app"
+                className="text-xs font-mono text-signal-amber font-semibold px-3 py-1"
+              >
+                Launch Trading Cockpit →
+              </Link>
+            </div>
           </div>
         )}
       </header>
 
+      {/* Search Modal */}
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   );

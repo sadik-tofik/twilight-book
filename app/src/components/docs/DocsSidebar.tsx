@@ -4,17 +4,17 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { DOC_SECTIONS } from '@/lib/docsData';
-import { ChevronRight } from 'lucide-react';
+import { CaretRight } from '@phosphor-icons/react';
 
 export const DocsSidebar: React.FC = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 shrink-0 py-8 pr-6 border-r border-[#242A30] hidden md:block">
+    <aside className="w-64 shrink-0 py-8 pr-6 border-r border-neutral-200 hidden md:block">
       <div className="space-y-8 sticky top-24">
         {DOC_SECTIONS.map((section) => (
           <div key={section.id}>
-            <div className="text-[11px] font-bold text-[#8A919C] uppercase tracking-wider mb-2.5 px-3">
+            <div className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider mb-2.5 px-3 font-mono">
               {section.title}
             </div>
             <ul className="space-y-0.5">
@@ -28,15 +28,15 @@ export const DocsSidebar: React.FC = () => {
                       href={href}
                       className={`flex items-center justify-between px-3 py-1.5 rounded-lg text-xs transition-colors ${
                         isActive
-                          ? 'bg-[#1B1F24] text-white font-semibold border-l-2 border-[#5B8DEF]'
-                          : 'text-zinc-400 hover:text-zinc-200 hover:bg-[#131619]'
+                          ? 'bg-neutral-150 text-neutral-900 font-semibold border-l-2 border-signal-amber'
+                          : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100'
                       }`}
                     >
                       <span className={section.id === 'instructions' ? 'font-mono' : ''}>
                         {page.title}
                       </span>
                       {isActive && (
-                        <ChevronRight className="w-3.5 h-3.5 text-[#5B8DEF]" />
+                        <CaretRight size={13} weight="bold" className="text-signal-amber" />
                       )}
                     </Link>
                   </li>

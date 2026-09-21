@@ -4,7 +4,16 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { MarketMode } from '@/lib/types';
 import { MarketStateBadge } from './MarketStateBadge';
-import { BookOpen, Wallet, ChevronDown, ExternalLink, Radio, Zap } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import {
+  BookOpen,
+  Wallet,
+  CaretDown,
+  ArrowSquareOut,
+  Broadcast,
+  Lightning,
+  X,
+} from '@phosphor-icons/react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { PROGRAM_ID } from '@/lib/solanaConfig';
@@ -42,29 +51,29 @@ export const TerminalHeader: React.FC<Props> = ({
     : null;
 
   return (
-    <header className="border-b border-[#242A30] bg-[#0B0D10] sticky top-0 z-40">
+    <header className="border-b border-neutral-200 bg-neutral-50 sticky top-0 z-40">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         {/* Left: Brand & Pair */}
-        <div className="flex items-center gap-5">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded bg-gradient-to-br from-[#3ECF8E] to-[#B98CE8] flex items-center justify-center font-bold text-black text-sm tracking-wider">
+        <div className="flex items-center gap-4 sm:gap-5">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-lg bg-neutral-100 border border-neutral-200 flex items-center justify-center font-bold text-neutral-900 text-xs tracking-wider">
               TB
             </div>
             <div>
-              <span className="font-bold text-base text-[#EDEFF2] tracking-tight block leading-tight">
+              <span className="font-bold text-base text-neutral-900 tracking-tight block leading-tight group-hover:text-signal-amber transition-colors">
                 TwilightBook
               </span>
-              <span className="text-[10px] text-[#8A919C] font-mono block leading-tight">
+              <span className="text-[10px] text-neutral-500 font-mono block leading-tight">
                 24/7 Tokenized Equities
               </span>
             </div>
           </Link>
 
           {/* Market Pair Selector */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#131619] border border-[#242A30] text-xs font-mono">
-            <span className="text-zinc-500">PAIR:</span>
-            <span className="text-white font-bold">{baseSymbol} / {quoteSymbol}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-zinc-500 ml-1" />
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-100 border border-neutral-200 text-xs font-mono">
+            <span className="text-neutral-500">PAIR:</span>
+            <span className="text-neutral-900 font-bold">{baseSymbol} / {quoteSymbol}</span>
+            <CaretDown size={14} className="text-neutral-500 ml-1" />
           </div>
 
           {/* Devnet Program ID link */}
@@ -72,12 +81,12 @@ export const TerminalHeader: React.FC<Props> = ({
             href={`https://explorer.solana.com/address/${PROGRAM_ID.toBase58()}?cluster=devnet`}
             target="_blank"
             rel="noreferrer"
-            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#131619] border border-[#242A30] hover:border-zinc-600 text-[11px] font-mono text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neutral-100 border border-neutral-200 hover:border-neutral-300 text-[11px] font-mono text-neutral-500 hover:text-neutral-900 transition-colors"
             title="View Deployed Program on Solana Explorer (Devnet)"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#3ECF8E]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-signal-green" />
             <span>Devnet: {PROGRAM_ID.toBase58().slice(0, 4)}...{PROGRAM_ID.toBase58().slice(-4)}</span>
-            <ExternalLink className="w-3 h-3 text-zinc-500" />
+            <ArrowSquareOut size={12} className="text-neutral-400" />
           </a>
         </div>
 
@@ -90,27 +99,27 @@ export const TerminalHeader: React.FC<Props> = ({
           />
         </div>
 
-        {/* Right: Mode Switcher, Docs Link & Wallet Button */}
-        <div className="flex items-center gap-2.5">
+        {/* Right: Mode Switcher, Docs Link, Theme Toggle, Wallet Button */}
+        <div className="flex items-center gap-2 sm:gap-2.5">
           {/* Mode Switcher: Live Devnet vs Instant Sim */}
           {onToggleLiveDevnet && (
             <button
               onClick={onToggleLiveDevnet}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-mono transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-mono transition-all cursor-pointer ${
                 isLiveDevnet
-                  ? 'bg-[#3ECF8E]/10 border-[#3ECF8E]/50 text-[#3ECF8E]'
-                  : 'bg-[#131619] border-[#242A30] text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-signal-green/10 border-signal-green/40 text-signal-green'
+                  : 'bg-neutral-100 border-neutral-200 text-neutral-500 hover:text-neutral-900'
               }`}
               title="Toggle between Live On-Chain Devnet execution and instant client-side simulation"
             >
               {isLiveDevnet ? (
                 <>
-                  <Radio className="w-3 h-3 animate-pulse text-[#3ECF8E]" />
+                  <Broadcast size={14} className="animate-pulse text-signal-green" />
                   <span className="font-bold">LIVE DEVNET</span>
                 </>
               ) : (
                 <>
-                  <Zap className="w-3 h-3 text-[#B98CE8]" />
+                  <Lightning size={14} className="text-signal-violet" />
                   <span>INSTANT SIM</span>
                 </>
               )}
@@ -119,11 +128,14 @@ export const TerminalHeader: React.FC<Props> = ({
 
           <Link
             href="/docs"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#131619] hover:bg-[#1B1F24] border border-[#242A30] text-zinc-300 text-xs font-medium transition-colors"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200/50 border border-neutral-200 text-neutral-900 text-xs font-medium transition-colors"
           >
-            <BookOpen className="w-4 h-4 text-[#5B8DEF]" />
+            <BookOpen size={14} className="text-signal-amber" />
             <span>Docs</span>
           </Link>
+
+          {/* Theme Toggle Button per §8.7 */}
+          <ThemeToggle />
 
           {/* Real Solana Wallet Adapter Button */}
           {mounted && (
@@ -131,28 +143,28 @@ export const TerminalHeader: React.FC<Props> = ({
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setVisible(true)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#131619] hover:bg-[#1B1F24] border border-[#3ECF8E]/40 text-xs font-mono text-[#EDEFF2] transition-colors"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-100 hover:bg-neutral-200/50 border border-signal-green/40 text-xs font-mono text-neutral-900 transition-colors cursor-pointer"
                   title="Click to change wallet"
                 >
-                  <span className="w-2 h-2 rounded-full bg-[#3ECF8E] animate-ping" />
-                  <Wallet className="w-3.5 h-3.5 text-[#3ECF8E]" />
-                  <span className="font-bold text-[#3ECF8E]">{truncatedAddress}</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-signal-green animate-ping" />
+                  <Wallet size={14} className="text-signal-green" />
+                  <span className="font-bold text-signal-green">{truncatedAddress}</span>
                 </button>
                 <button
                   onClick={() => disconnect()}
-                  className="px-2 py-1.5 rounded-lg bg-[#131619] hover:bg-[#1B1F24] border border-[#242A30] text-[11px] text-zinc-500 hover:text-rose-400 transition-colors"
+                  className="w-8 h-8 rounded-lg bg-neutral-100 hover:bg-neutral-200/50 border border-neutral-200 flex items-center justify-center text-neutral-500 hover:text-signal-red transition-colors cursor-pointer"
                   title="Disconnect Wallet"
                 >
-                  ✕
+                  <X size={14} />
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => setVisible(true)}
                 disabled={connecting}
-                className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#3ECF8E] hover:bg-[#32B47A] text-black text-xs font-bold font-mono transition-transform hover:scale-[1.02] shadow-sm"
+                className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-signal-amber text-neutral-50 hover:opacity-95 font-medium text-xs font-mono transition-opacity cursor-pointer disabled:opacity-50"
               >
-                <Wallet className="w-3.5 h-3.5" />
+                <Wallet size={14} />
                 <span>{connecting ? 'Connecting...' : 'Connect Wallet'}</span>
               </button>
             )
@@ -162,4 +174,3 @@ export const TerminalHeader: React.FC<Props> = ({
     </header>
   );
 };
-
