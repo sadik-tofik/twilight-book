@@ -1,4 +1,4 @@
-import { PublicKey, Connection } from '@solana/web3.js';
+import { PublicKey, Connection, ComputeBudgetProgram } from '@solana/web3.js';
 import * as anchor from '@coral-xyz/anchor';
 import { Program, AnchorProvider, BN } from '@coral-xyz/anchor';
 import idl from './twilight_book.json';
@@ -250,7 +250,21 @@ export async function executeOnChainPlaceOrder(
   const lotSizeBn = new BN(Math.round(lotSize * 1_000_000));
   const limitPriceBn = new BN(Math.round(limitPrice * 1_000_000));
 
+  const [mockOraclePda] = findMockOraclePda(market.baseMint, market.quoteMint);
+  const now = Math.floor(Date.now() / 1000);
+  const updateOracleIx = await program.methods
+    .setMockOracle(new BN(214_500_000), new BN(6_000_000), -6, 1, new BN(now))
+    .accounts({
+      payer: wallet.publicKey,
+      baseMint: market.baseMint,
+      quoteMint: market.quoteMint,
+      mockOracle: mockOraclePda,
+      systemProgram: anchor.web3.SystemProgram.programId,
+    })
+    .instruction();
+
   const preInstructions = [
+    ComputeBudgetProgram.setComputeUnitLimit({ units: 350_000 }),
     createAssociatedTokenAccountIdempotentInstruction(
       wallet.publicKey,
       userBaseAta,
@@ -263,6 +277,7 @@ export async function executeOnChainPlaceOrder(
       wallet.publicKey,
       market.quoteMint
     ),
+    updateOracleIx,
   ];
 
   return await program.methods
