@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono, Martian_Mono } from "next/font/google";
 import "./globals.css";
 import { SolanaWalletProvider } from "@/components/SolanaWalletProvider";
+import { Analytics } from "@vercel/analytics/next";
 
 const plexSans = IBM_Plex_Sans({
   variable: "--font-plex-sans",
@@ -56,6 +57,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col font-sans bg-neutral-50 text-neutral-900">
         <SolanaWalletProvider>{children}</SolanaWalletProvider>
+        <Analytics />
       </body>
     </html>
   );
