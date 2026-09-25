@@ -141,7 +141,8 @@ export const TerminalHeader: React.FC<Props> = ({
             <span>Docs</span>
           </Link>
 
-          {isLiveDevnet && connected && onRequestFaucet && (
+          {/* Faucet button hidden for production stability */}
+          {false && isLiveDevnet && connected && onRequestFaucet && (
             <button
               onClick={onRequestFaucet}
               disabled={faucetLoading}

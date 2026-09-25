@@ -22,6 +22,10 @@ const QUOTE_MINT = new PublicKey('Ba7J5A5jCViRSKk1UPfZZthz3sEBdEQBydh4a6ibJjA');
 
 function getAuthorityKeypair(): Keypair | null {
   try {
+    if (process.env.SOLANA_KEYPAIR_JSON) {
+      const raw = JSON.parse(process.env.SOLANA_KEYPAIR_JSON);
+      return Keypair.fromSecretKey(new Uint8Array(raw));
+    }
     const keyPath = process.env.SOLANA_KEYPAIR_PATH || '/home/sadik/.config/solana/id.json';
     if (fs.existsSync(keyPath)) {
       const raw = JSON.parse(fs.readFileSync(keyPath, 'utf-8'));

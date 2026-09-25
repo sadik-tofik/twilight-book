@@ -275,17 +275,22 @@ export default function CockpitPage() {
         ]);
 
         if (!baseAtaInfo || !quoteAtaInfo) {
-          setTxMessage("First-time setup: Initializing token accounts & funding test USDC from faucet...");
-          const res = await fetch('/api/faucet', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ recipient: wallet.publicKey.toBase58() }),
-          });
-          const faucetData = await res.json();
-          if (!res.ok || faucetData.error) {
-            throw new Error(faucetData.error || 'Failed to auto-initialize token accounts');
+          try {
+            setTxMessage("First-time setup: Checking test token accounts...");
+            const res = await fetch('/api/faucet', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ recipient: wallet.publicKey.toBase58() }),
+            });
+            const faucetData = await res.json();
+            if (!res.ok || faucetData.error) {
+              console.warn("Auto-faucet skipped or unavailable:", faucetData?.error);
+            } else {
+              setTxMessage("Token accounts initialized! Submitting order to Devnet...");
+            }
+          } catch (faucetErr) {
+            console.warn("Auto-faucet request failed, continuing to order placement:", faucetErr);
           }
-          setTxMessage("Token accounts initialized! Now submitting order to Devnet...");
         }
 
         setTxMessage(`Signing & escrowing ${side.toUpperCase()} order (${lotSize} shares @ $${limitPrice}) on Devnet...`);
@@ -296,7 +301,14 @@ export default function CockpitPage() {
         await refreshOnChainState();
         return { success: true };
       } catch (err: any) {
-        const msg = err?.message || "Failed to place order on Devnet.";
+        let msg = err?.message || "Failed to place order on Devnet.";
+        if (
+          msg.includes("insufficient funds") ||
+          msg.includes("0x1") ||
+          msg.includes("AccountNotFound")
+        ) {
+          msg = "Insufficient test funds. Please fund your wallet with devnet SOL & test USDC or use Instant Sim.";
+        }
         setTxError(msg);
         return { success: false, error: msg };
       } finally {
@@ -494,16 +506,19 @@ export default function CockpitPage() {
               <span className="text-neutral-900 font-semibold">
                 Devnet Live Wallet Active ({wallet.publicKey?.toBase58().slice(0, 4)}...{wallet.publicKey?.toBase58().slice(-4)})
               </span>
-              <span className="text-neutral-500 hidden sm:inline">— Need test USDC &amp; tTSLA to escrow on-chain orders?</span>
+              <span className="text-neutral-500 hidden sm:inline">— Fund your wallet with devnet USDC or switch to Instant Sim</span>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleRequestFaucet}
-                disabled={faucetLoading}
-                className="px-3 py-1 rounded bg-signal-amber text-neutral-50 font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
-              >
-                {faucetLoading ? 'Minting...' : faucetSuccess ? '✓ 1,000 USDC Minted!' : 'Airdrop Test Tokens'}
-              </button>
+              {/* Faucet button hidden for production stability */}
+              {false && (
+                <button
+                  onClick={handleRequestFaucet}
+                  disabled={faucetLoading}
+                  className="px-3 py-1 rounded bg-signal-amber text-neutral-50 font-bold hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
+                >
+                  {faucetLoading ? 'Minting...' : faucetSuccess ? '✓ 1,000 USDC Minted!' : 'Airdrop Test Tokens'}
+                </button>
+              )}
               <button
                 onClick={() => setIsLiveDevnet(false)}
                 className="px-2.5 py-1 rounded border border-neutral-300 hover:bg-neutral-200/50 text-neutral-600 transition-colors cursor-pointer"
